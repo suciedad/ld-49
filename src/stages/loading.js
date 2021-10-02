@@ -13,6 +13,10 @@ import mainMenuButton from '../assets/main-menu-button-2.png';
 import sinePixelBlue from '../assets/sine-pixel-blue.png';
 import sinePixelRed from '../assets/sine-pixel-red.png';
 
+import circle1 from '../assets/circle-1.png';
+import circle2 from '../assets/circle-2.png';
+import circle3 from '../assets/circle-3.png';
+
 import blockIceSample from '../assets/samples/block-ice-5x.png';
 import blockStoneSample from '../assets/samples/block-stone-5x.png';
 
@@ -49,6 +53,10 @@ export class Loading extends Scene {
     this.load.image('main-menu-button', mainMenuButton);
     this.load.image('sine-pixel-blue', sinePixelBlue);
     this.load.image('sine-pixel-red', sinePixelRed);
+
+    this.load.image('circle-1', circle1);
+    this.load.image('circle-2', circle2);
+    this.load.image('circle-3', circle3);
 
     this.load.image('block-ice-sample', blockIceSample);
     this.load.image('block-stone-sample', blockStoneSample);

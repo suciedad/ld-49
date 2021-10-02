@@ -1,5 +1,7 @@
 import { Scene, Math } from 'phaser';
+import { ACCIDENT_EVENT } from '../constants/accidentEvents';
 import { APP_SIZE } from '../constants/app';
+import { DOWN } from '../constants/keyboardEvents';
 import { SCENE_KEY } from '../constants/scene-key';
 
 const CIRCLE_STATE = {
@@ -14,8 +16,8 @@ const degRange = {
 };
 
 const speedRange = {
-  min: 0.03,
-  max: 0.05,
+  min: 0.01,
+  max: 0.04,
 };
 
 const circlePassedDegRange = {
@@ -32,7 +34,7 @@ class MazeCircle {
 
     const angle = Math.Between(degRange.min, degRange.max);
 
-    this.subject.setOrigin(0.5, 0);
+    // this.subject.setOrigin(0.5, 0);
     this.subject.setRotation(Math.DegToRad(angle));
   }
 
@@ -45,12 +47,14 @@ class MazeCircle {
   }
 }
 
+// TODO - Круги сделать больше, расстояние между ними больше, отрегулировать скорость
 export class Circle extends Scene {
   constructor() {
     super({ key: SCENE_KEY.CIRCLE });
 
     this.circles = [];
     this.currentCircleIndex = 0;
+    this.status = 'rotating';
   }
 
   get currentCircle() {
@@ -65,8 +69,6 @@ export class Circle extends Scene {
       : null;
   }
 
-  preload() {}
-
   isAllCirclesPassed() {
     return this.circles.every(({ state }) => state === CIRCLE_STATE.PASSED);
   }
@@ -76,19 +78,33 @@ export class Circle extends Scene {
   }
 
   create() {
+    this.currentCircleIndex = 0;
+    this.status = 'rotating';
+
+    // TODO - delete
+    // const circle1 = new MazeCircle(
+    //   this.add.rectangle(320, 320, 30, 125, 0x154846),
+    // );
+    // const circle2 = new MazeCircle(
+    //   this.add.rectangle(320, 320, 30, 95, 0x945784),
+    // );
+    // const circle3 = new MazeCircle(
+    //   this.add.rectangle(320, 320, 30, 65, 0xf2c546),
+    // );
+
     const circle1 = new MazeCircle(
-      this.add.rectangle(320, 320, 30, 125, 0x154846),
+      this.add.sprite(APP_SIZE.WIDTH * 0.5, APP_SIZE.HEIGHT * 0.5, 'circle-1'),
     );
     const circle2 = new MazeCircle(
-      this.add.rectangle(320, 320, 30, 95, 0x945784),
+      this.add.sprite(APP_SIZE.WIDTH * 0.5, APP_SIZE.HEIGHT * 0.5, 'circle-2'),
     );
     const circle3 = new MazeCircle(
-      this.add.rectangle(320, 320, 30, 65, 0xf2c546),
+      this.add.sprite(APP_SIZE.WIDTH * 0.5, APP_SIZE.HEIGHT * 0.5, 'circle-3'),
     );
 
     this.circles = [circle1, circle2, circle3];
 
-    const spaceKey = this.input.keyboard.addKey(
+    this.spaceKey = this.input.keyboard.addKey(
       Phaser.Input.Keyboard.KeyCodes.SPACE,
     );
 
@@ -105,18 +121,19 @@ export class Circle extends Scene {
       }
 
       if (this.isAllCirclesPassed()) {
-        console.log('CONGRATULATIONS');
-        spaceKey.off('down', stopCircleHandler);
+        this.spaceKey.off(DOWN, stopCircleHandler);
+        this.events.emit(ACCIDENT_EVENT.PASSED);
 
         return;
       }
 
       if (this.isSomeCirclesFailed()) {
-        console.log('YOU FAILED');
-        setTimeout(() => {
-          this.scene.restart();
-        }, 2000);
-        spaceKey.off('down', stopCircleHandler);
+        this.spaceKey.off(DOWN, stopCircleHandler);
+        this.events.emit(ACCIDENT_EVENT.FAILED);
+
+        // setTimeout(() => {
+        //   this.scene.restart();
+        // }, 2000);
 
         return;
       }
@@ -124,18 +141,31 @@ export class Circle extends Scene {
       this.currentCircleIndex += 1;
     };
 
-    spaceKey.on('down', stopCircleHandler);
+    this.spaceKey.on(DOWN, stopCircleHandler);
 
-    // For test
-    this.add.rectangle(320, 400, 5, 140, 0x00ff00);
-    this.add.circle(320, 320, 3, 0xff0000);
+    // TIMER
+    this.timer = this.time.addEvent({
+      delay: 10000,
+      loop: false,
+      callback: () => {
+        this.status = 'stopped';
+        this.events.emit(ACCIDENT_EVENT.FAILED);
+        this.spaceKey.off(DOWN, stopCircleHandler);
+      },
+    });
+
+    // TODO - For test
+    this.add.rectangle(320, 370, 5, 100, 0x00ff00);
+    // this.add.circle(320, 320, 3, 0xff0000);
   }
 
   update() {
-    this.circles.forEach(({ state, subject, speed, direction }) => {
-      if (state === CIRCLE_STATE.ROTATING) {
-        subject.rotation += speed * direction;
-      }
-    });
+    if (this.status === 'rotating') {
+      this.circles.forEach(({ state, subject, speed, direction }) => {
+        if (state === CIRCLE_STATE.ROTATING) {
+          subject.rotation += speed * direction;
+        }
+      });
+    }
   }
 }

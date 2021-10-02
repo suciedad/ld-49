@@ -1,5 +1,6 @@
 import { Scene, Math } from 'phaser';
 
+import { ACCIDENT_EVENT } from '../constants/accidentEvents';
 import { APP_SIZE } from '../constants/app';
 import { DOWN } from '../constants/keyboardEvents';
 import { SCENE_KEY } from '../constants/scene-key';
@@ -55,6 +56,11 @@ export class Lab extends Scene {
     const isSuccess = rollChance(this.chance.electricityTurnOn);
 
     isSuccess && this.electricityTurnOn();
+  }
+
+  stopSolving(scene) {
+    scene.remove();
+    this.playerStatus = PLAYER_STATUS.WALKING;
   }
 
   create() {
@@ -175,56 +181,99 @@ export class Lab extends Scene {
 
     // KEYBOARD PROCESS
     this.xKey.on(DOWN, () => {
-      if (!this.circleCompZone.body.touching.none) {
-        console.log('START CIRCLE COMPUTER');
-        this.scene.add(SCENE_KEY.CIRCLE, Circle, true, { x: 400, y: 300 });
+      if (this.playerStatus === PLAYER_STATUS.WALKING) {
+        if (!this.circleCompZone.body.touching.none && this.isElectricityOn) {
+          this.playerStatus = PLAYER_STATUS.SOLVING;
 
-        return;
-      }
+          const circleScene = this.scene.add(SCENE_KEY.CIRCLE, Circle, true, {
+            x: 1000,
+            y: 1000,
+          });
 
-      if (!this.sineCompZone.body.touching.none) {
-        console.log('START SINE COMPUTER');
-        this.scene.add(SCENE_KEY.SINE, Sine, true, { x: 400, y: 300 });
+          circleScene.events.on(ACCIDENT_EVENT.PASSED, () => {
+            setTimeout(() => this.stopSolving(circleScene.scene), 500);
+          });
 
-        return;
-      }
+          circleScene.events.on(ACCIDENT_EVENT.FAILED, () => {
+            setTimeout(() => this.stopSolving(circleScene.scene), 500);
+          });
 
-      if (!this.sequenceCompZone.body.touching.none) {
-        console.log('START SEQUENCE COMPUTER');
-        this.scene.add(SCENE_KEY.ARROW_SEQUENCE, ArrowSequence, true, {
-          x: 400,
-          y: 300,
-        });
+          return;
+        }
 
-        return;
-      }
+        if (!this.sineCompZone.body.touching.none && this.isElectricityOn) {
+          this.playerStatus = PLAYER_STATUS.SOLVING;
 
-      if (
-        !this.isElectricityOn &&
-        !this.electricitySwitcherZone.body.touching.none
-      ) {
-        console.log('try electricity');
-        this.tryTurnOnElectricity();
+          const sineScene = this.scene.add(SCENE_KEY.SINE, Sine, true, {
+            x: 400,
+            y: 300,
+          });
 
-        return;
+          sineScene.events.on(ACCIDENT_EVENT.PASSED, () => {
+            setTimeout(() => this.stopSolving(sineScene.scene), 500);
+          });
+
+          sineScene.events.on(ACCIDENT_EVENT.FAILED, () => {
+            setTimeout(() => this.stopSolving(sineScene.scene), 500);
+          });
+
+          return;
+        }
+
+        if (!this.sequenceCompZone.body.touching.none && this.isElectricityOn) {
+          this.playerStatus = PLAYER_STATUS.SOLVING;
+
+          const sequenceScene = this.scene.add(
+            SCENE_KEY.ARROW_SEQUENCE,
+            ArrowSequence,
+            true,
+            {
+              x: 400,
+              y: 300,
+            },
+          );
+
+          sequenceScene.events.on(ACCIDENT_EVENT.PASSED, () => {
+            setTimeout(() => this.stopSolving(sequenceScene.scene), 500);
+          });
+
+          sequenceScene.events.on(ACCIDENT_EVENT.FAILED, () => {
+            setTimeout(() => this.stopSolving(sequenceScene.scene), 500);
+          });
+
+          return;
+        }
+
+        if (
+          !this.isElectricityOn &&
+          !this.electricitySwitcherZone.body.touching.none
+        ) {
+          this.tryTurnOnElectricity();
+
+          return;
+        }
       }
     });
   }
 
   update() {
-    if (this.leftKey.isDown) {
+    if (this.leftKey.isDown && this.playerStatus === PLAYER_STATUS.WALKING) {
       this.player.x -= PLAYER_SPEED;
       this.player.flipX = true;
     }
 
-    if (this.rightKey.isDown) {
+    if (this.rightKey.isDown && this.playerStatus === PLAYER_STATUS.WALKING) {
       this.player.x += PLAYER_SPEED;
       this.player.flipX = false;
     }
 
     // TODO - сделать одиночным
     // FIXME - прыжки в зоне
-    if (this.upKey.isDown && this.player.body.touching.down) {
+    if (
+      this.upKey.isDown &&
+      this.player.body.touching.down &&
+      this.playerStatus === PLAYER_STATUS.WALKING
+    ) {
       this.player.setVelocityY(-PLAYER_JUMP_VELOCITY);
     }
 

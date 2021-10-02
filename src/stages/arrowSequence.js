@@ -1,4 +1,5 @@
 import { Scene, Math } from 'phaser';
+import { ACCIDENT_EVENT } from '../constants/accidentEvents';
 import { APP_SIZE } from '../constants/app';
 import { DOWN } from '../constants/keyboardEvents';
 import { SCENE_KEY } from '../constants/scene-key';
@@ -95,26 +96,27 @@ export class ArrowSequence extends Scene {
       this.enteredSequence.push(keyCode);
 
       if (this.isAllArowsEntered() && this.isEnteredValid()) {
-        console.log('CONGRATULATIONS');
-
         upKey.off(DOWN, arrowKeyboardPushHandler);
         downKey.off(DOWN, arrowKeyboardPushHandler);
         leftKey.off(DOWN, arrowKeyboardPushHandler);
         rightKey.off(DOWN, arrowKeyboardPushHandler);
+
+        this.events.emit(ACCIDENT_EVENT.PASSED);
 
         return;
       }
 
       if (!this.isEnteredValid()) {
-        console.log('YOU FAILED');
-        setTimeout(() => {
-          this.scene.restart();
-        }, 2000);
+        // setTimeout(() => {
+        //   this.scene.restart();
+        // }, 2000);
 
         upKey.off(DOWN, arrowKeyboardPushHandler);
         downKey.off(DOWN, arrowKeyboardPushHandler);
         leftKey.off(DOWN, arrowKeyboardPushHandler);
         rightKey.off(DOWN, arrowKeyboardPushHandler);
+
+        this.events.emit(ACCIDENT_EVENT.FAILED);
 
         return;
       }
