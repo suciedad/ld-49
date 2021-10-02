@@ -10,6 +10,8 @@ import greenPlayer from '../assets/green-player.png';
 import bluePlayer from '../assets/blue-player.png';
 import yellowPlayer from '../assets/yellow-player.png';
 import mainMenuButton from '../assets/main-menu-button-2.png';
+import sinePixelBlue from '../assets/sine-pixel-blue.png';
+import sinePixelRed from '../assets/sine-pixel-red.png';
 
 import { ProgressBar } from '../components/progress-bar';
 
@@ -39,6 +41,8 @@ export class Loading extends Scene {
     this.load.image('blue-player', bluePlayer);
     this.load.image('yellow-player', yellowPlayer);
     this.load.image('main-menu-button', mainMenuButton);
+    this.load.image('sine-pixel-blue', sinePixelBlue);
+    this.load.image('sine-pixel-red', sinePixelRed);
 
     // Sounds
 
@@ -61,7 +65,9 @@ export class Loading extends Scene {
       progressBar.destroy();
 
       // this.scene.start(SCENE_KEY.MAIN_MENU);
-      this.scene.start(SCENE_KEY.ARROW_SEQUENCE);
+      // this.scene.start(SCENE_KEY.CIRCLE);
+      // this.scene.start(SCENE_KEY.ARROW_SEQUENCE);
+      this.scene.start(SCENE_KEY.SINE);
     });
   }
 }

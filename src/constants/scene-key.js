@@ -3,4 +3,5 @@ export const SCENE_KEY = {
   CIRCLE: 'circle',
   LOADING: 'loading',
   MAIN_MENU: 'main-menu',
+  SINE: 'sine',
 };

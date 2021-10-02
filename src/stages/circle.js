@@ -105,7 +105,7 @@ export class Circle extends Scene {
       }
 
       if (this.isAllCirclesPassed()) {
-        console.log('CONGRATULATION');
+        console.log('CONGRATULATIONS');
         spaceKey.off('down', stopCircleHandler);
 
         return;
