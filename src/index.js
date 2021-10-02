@@ -5,21 +5,27 @@ import {
   APP_CONTAINER_ID,
   APP_SIZE,
 } from './constants/app';
+import { PHYSICS_ARCADE, PHYSICS_ARCADE_GRAVITY } from './constants/physics';
 
 import { Loading } from './stages/loading';
 import { MainMenu } from './stages/main-menu';
 import { Circle } from './stages/circle';
 import { ArrowSequence } from './stages/arrowSequence';
 import { Sine } from './stages/sine';
+import { Lab } from './stages/lab';
 
 const GAME_SETTINGS = {
   width: APP_SIZE.WIDTH,
   height: APP_SIZE.HEIGHT,
   parent: APP_CONTAINER_ID,
   backgroundColor: APP_BACKGROUND_COLOR,
-  scene: [Loading, MainMenu, Circle, ArrowSequence, Sine],
+  scene: [Loading, MainMenu, Circle, ArrowSequence, Sine, Lab],
   physics: {
-    default: 'arcade',
+    default: PHYSICS_ARCADE,
+    arcade: {
+      gravity: { y: PHYSICS_ARCADE_GRAVITY },
+      debug: true,
+    },
   },
 };
 

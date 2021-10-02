@@ -4,4 +4,5 @@ export const SCENE_KEY = {
   LOADING: 'loading',
   MAIN_MENU: 'main-menu',
   SINE: 'sine',
+  LAB: 'lab',
 };

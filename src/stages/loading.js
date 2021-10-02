@@ -13,6 +13,11 @@ import mainMenuButton from '../assets/main-menu-button-2.png';
 import sinePixelBlue from '../assets/sine-pixel-blue.png';
 import sinePixelRed from '../assets/sine-pixel-red.png';
 
+import blockIceSample from '../assets/samples/block-ice-5x.png';
+import blockStoneSample from '../assets/samples/block-stone-5x.png';
+
+import keyX from '../assets/key-x.png';
+
 import { ProgressBar } from '../components/progress-bar';
 
 const PROGRESS_STYLE = {
@@ -44,6 +49,11 @@ export class Loading extends Scene {
     this.load.image('sine-pixel-blue', sinePixelBlue);
     this.load.image('sine-pixel-red', sinePixelRed);
 
+    this.load.image('block-ice-sample', blockIceSample);
+    this.load.image('block-stone-sample', blockStoneSample);
+
+    this.load.image('key-x', keyX);
+
     // Sounds
 
     const progressBar = new ProgressBar(
@@ -67,7 +77,8 @@ export class Loading extends Scene {
       // this.scene.start(SCENE_KEY.MAIN_MENU);
       // this.scene.start(SCENE_KEY.CIRCLE);
       // this.scene.start(SCENE_KEY.ARROW_SEQUENCE);
-      this.scene.start(SCENE_KEY.SINE);
+      // this.scene.start(SCENE_KEY.SINE);
+      this.scene.start(SCENE_KEY.LAB);
     });
   }
 }
