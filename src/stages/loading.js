@@ -17,6 +17,7 @@ import blockIceSample from '../assets/samples/block-ice-5x.png';
 import blockStoneSample from '../assets/samples/block-stone-5x.png';
 
 import keyX from '../assets/key-x.png';
+import bang from '../assets/bang.png';
 
 import { ProgressBar } from '../components/progress-bar';
 
@@ -52,6 +53,7 @@ export class Loading extends Scene {
     this.load.image('block-ice-sample', blockIceSample);
     this.load.image('block-stone-sample', blockStoneSample);
 
+    this.load.image('bang', bang);
     this.load.image('key-x', keyX);
 
     // Sounds

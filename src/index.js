@@ -19,7 +19,7 @@ const GAME_SETTINGS = {
   height: APP_SIZE.HEIGHT,
   parent: APP_CONTAINER_ID,
   backgroundColor: APP_BACKGROUND_COLOR,
-  scene: [Loading, MainMenu, Circle, ArrowSequence, Sine, Lab],
+  scene: [Loading, MainMenu, Lab],
   physics: {
     default: PHYSICS_ARCADE,
     arcade: {
