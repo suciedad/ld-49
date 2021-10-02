@@ -40,7 +40,7 @@ export class ArrowSequence extends Scene {
   constructor() {
     super({ key: SCENE_KEY.ARROW_SEQUENCE });
 
-    this.sequence = generateArrowSequence(5);
+    this.sequence = [];
     this.enteredSequence = [];
   }
 
@@ -52,7 +52,14 @@ export class ArrowSequence extends Scene {
     );
   }
 
+  isAllArowsEntered() {
+    return this.enteredSequence.length === this.sequence.length;
+  }
+
   create() {
+    this.sequence = generateArrowSequence(5);
+    this.enteredSequence = [];
+
     const upKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
     const downKey = this.input.keyboard.addKey(
       Phaser.Input.Keyboard.KeyCodes.DOWN,
@@ -64,26 +71,59 @@ export class ArrowSequence extends Scene {
       Phaser.Input.Keyboard.KeyCodes.RIGHT,
     );
 
-    upKey.on(DOWN, () => {
-      this.enteredSequence.push(ARROW.UP);
-      console.log(this.enteredSequence);
-      console.log(this.isEnteredValid());
-    });
-    downKey.on(DOWN, () => {
-      this.enteredSequence.push(ARROW.DOWN);
-      console.log(this.enteredSequence);
-      console.log(this.isEnteredValid());
-    });
-    leftKey.on(DOWN, () => {
-      this.enteredSequence.push(ARROW.LEFT);
-      console.log(this.enteredSequence);
-      console.log(this.isEnteredValid());
-    });
-    rightKey.on(DOWN, () => {
-      this.enteredSequence.push(ARROW.RIGHT);
-      console.log(this.enteredSequence);
-      console.log(this.isEnteredValid());
-    });
+    const arrowKeyboardPushHandler = (key, event) => {
+      let keyCode = '';
+
+      switch (event.code) {
+        case 'ArrowUp':
+          keyCode = ARROW.UP;
+          break;
+
+        case 'ArrowDown':
+          keyCode = ARROW.DOWN;
+          break;
+
+        case 'ArrowLeft':
+          keyCode = ARROW.LEFT;
+          break;
+
+        case 'ArrowRight':
+          keyCode = ARROW.RIGHT;
+          break;
+      }
+
+      this.enteredSequence.push(keyCode);
+
+      if (this.isAllArowsEntered() && this.isEnteredValid()) {
+        console.log('CONGRATULATIONS');
+
+        upKey.off(DOWN, arrowKeyboardPushHandler);
+        downKey.off(DOWN, arrowKeyboardPushHandler);
+        leftKey.off(DOWN, arrowKeyboardPushHandler);
+        rightKey.off(DOWN, arrowKeyboardPushHandler);
+
+        return;
+      }
+
+      if (!this.isEnteredValid()) {
+        console.log('YOU FAILED');
+        setTimeout(() => {
+          this.scene.restart();
+        }, 2000);
+
+        upKey.off(DOWN, arrowKeyboardPushHandler);
+        downKey.off(DOWN, arrowKeyboardPushHandler);
+        leftKey.off(DOWN, arrowKeyboardPushHandler);
+        rightKey.off(DOWN, arrowKeyboardPushHandler);
+
+        return;
+      }
+    };
+
+    upKey.on(DOWN, arrowKeyboardPushHandler);
+    downKey.on(DOWN, arrowKeyboardPushHandler);
+    leftKey.on(DOWN, arrowKeyboardPushHandler);
+    rightKey.on(DOWN, arrowKeyboardPushHandler);
 
     // ▲▼◀▶
     this.sequence.forEach((arrow, index) => {

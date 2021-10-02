@@ -115,7 +115,7 @@ export class Circle extends Scene {
         console.log('YOU FAILED');
         setTimeout(() => {
           this.scene.restart();
-        }, 3000);
+        }, 2000);
         spaceKey.off('down', stopCircleHandler);
 
         return;
