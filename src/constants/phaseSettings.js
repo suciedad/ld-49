@@ -94,7 +94,7 @@ export const phase5 = {
 };
 
 export const phase6 = {
-  time: 60000,
+  time: 80000,
   electricityOff: 15,
   electricityTurnOn: 25,
   circleAccident: {

@@ -24,39 +24,41 @@ export class MainMenu extends Scene {
   preload() {}
 
   create() {
+    this.add.sprite(APP_SIZE.WIDTH * 0.5, 250, 'logo');
+
     this.buttons.start = this.add
       .sprite(
         APP_SIZE.WIDTH * 0.5,
-        APP_SIZE.HEIGHT * 0.5 - 55 - 20,
+        APP_SIZE.HEIGHT * 0.5 + 120,
         'main-menu-button',
       )
       .setInteractive({ useHandCursor: true })
       .on('pointerdown', () => this.startClickHandler());
 
-    this.buttons.selectLevel = this.add
-      .sprite(
-        APP_SIZE.WIDTH * 0.5,
-        APP_SIZE.HEIGHT * 0.5 + 20,
-        'main-menu-button',
-      )
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.selectLevelHandler());
+    // this.buttons.selectLevel = this.add
+    //   .sprite(
+    //     APP_SIZE.WIDTH * 0.5,
+    //     APP_SIZE.HEIGHT * 0.5 + 120,
+    //     'main-menu-button',
+    //   )
+    //   .setInteractive({ useHandCursor: true })
+    //   .on('pointerdown', () => this.selectLevelHandler());
 
     const startText = this.add.text(
       0,
-      APP_SIZE.HEIGHT * 0.5 - 55 - 36,
+      APP_SIZE.HEIGHT * 0.5 + 103,
       MAIN.START_GAME,
       TEXT_STYLE,
     );
-    const selectText = this.add.text(
-      0,
-      APP_SIZE.HEIGHT * 0.5 + 3,
-      MAIN.SELECT_LEVEL,
-      TEXT_STYLE,
-    );
+    // const selectText = this.add.text(
+    //   0,
+    //   APP_SIZE.HEIGHT * 0.5 + 103,
+    //   MAIN.SELECT_LEVEL,
+    //   TEXT_STYLE,
+    // );
 
     startText.x = APP_SIZE.WIDTH * 0.5 - startText.width * 0.5;
-    selectText.x = APP_SIZE.WIDTH * 0.5 - selectText.width * 0.5;
+    // selectText.x = APP_SIZE.WIDTH * 0.5 - selectText.width * 0.5;
   }
 
   startClickHandler() {

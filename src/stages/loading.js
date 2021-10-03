@@ -5,6 +5,8 @@ import { SCENE_KEY } from '../constants/scene-key';
 
 import { MAIN } from '../locales/main';
 
+import logo from '../assets/logo.png';
+
 import player from '../assets/player.png';
 import redPlayer from '../assets/red-player.png';
 import greenPlayer from '../assets/green-player.png';
@@ -81,6 +83,8 @@ export class Loading extends Scene {
     });
 
     // Images
+    this.load.image('logo', logo);
+
     this.load.image('player', player);
     this.load.image('red-player', redPlayer);
     this.load.image('green-player', greenPlayer);
