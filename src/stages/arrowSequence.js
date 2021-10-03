@@ -76,6 +76,8 @@ export class ArrowSequence extends Scene {
   }
 
   create({ length, time }) {
+    this.add.sprite(320, 320, 'sine-screen');
+
     this.sequence = generateArrowSequence(length);
     this.enteredSequence = [];
     this.arrowKeys = [];
@@ -150,7 +152,7 @@ export class ArrowSequence extends Scene {
     this.sequence.forEach((arrow, index) => {
       this.arrowKeys.push(
         this.add.sprite(
-          50 + index * 70,
+          190 + index * 70,
           APP_SIZE.HEIGHT * 0.5,
           arrowsSpriteMap[arrow],
         ),
@@ -176,7 +178,7 @@ export class ArrowSequence extends Scene {
     this.progressBar = new ProgressBar(
       this,
       APP_SIZE.WIDTH * 0.5 - APP_SIZE.WIDTH * 0.35 * 0.5,
-      APP_SIZE.HEIGHT * 0.5 + 25 - 35,
+      APP_SIZE.HEIGHT * 0.5 - 130,
       0,
       time / 1000,
       time / 1000,
@@ -189,20 +191,7 @@ export class ArrowSequence extends Scene {
 
     this.progressBar.setValue(value);
 
-    // this.sequence.forEach((arrow, index) => {
-    //   this.arrowKeys = this.add.sprite(
-    //     50 + index * 70,
-    //     APP_SIZE.HEIGHT * 0.5,
-    //     arrowsSpriteMap[arrow],
-    //   );
-    // });
-
     this.enteredSequence.forEach((arrow, index) => {
-      // this.arrowKeys[index] = this.add.sprite(
-      //   50 + index * 70,
-      //   APP_SIZE.HEIGHT * 0.5,
-      //   arrowsPressedSpriteMap[arrow],
-      // );
       this.arrowKeys[index].setTexture(arrowsPressedSpriteMap[arrow]);
     });
   }

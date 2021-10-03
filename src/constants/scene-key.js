@@ -5,4 +5,5 @@ export const SCENE_KEY = {
   MAIN_MENU: 'main-menu',
   SINE: 'sine',
   LAB: 'lab',
+  GAME_OVER: 'game-over',
 };

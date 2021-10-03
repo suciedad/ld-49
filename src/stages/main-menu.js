@@ -60,7 +60,8 @@ export class MainMenu extends Scene {
   }
 
   startClickHandler() {
-    console.log('Start Game!');
+    // this.scene.start(SCENE_KEY.LAB);
+    this.scene.start(SCENE_KEY.GAME_OVER);
   }
 
   selectLevelHandler() {

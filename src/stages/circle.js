@@ -81,31 +81,10 @@ export class Circle extends Scene {
   }
 
   create({ time }) {
+    this.add.sprite(320, 320, 'sine-screen');
+
     this.currentCircleIndex = 0;
     this.status = 'rotating';
-
-    // TODO - delete
-    // const circle1 = new MazeCircle(
-    //   this.add.rectangle(320, 320, 30, 125, 0x154846),
-    // );
-    // const circle2 = new MazeCircle(
-    //   this.add.rectangle(320, 320, 30, 95, 0x945784),
-    // );
-    // const circle3 = new MazeCircle(
-    //   this.add.rectangle(320, 320, 30, 65, 0xf2c546),
-    // );
-    // this.add.rectangle(320, 320, 30, 125, 0x154846);
-    // this.add.rectangle(320, 320, 30, 95, 0x945784);
-    // this.add.rectangle(320, 320, 30, 65, 0xf2c546);
-    // this.add
-    //   .sprite(APP_SIZE.WIDTH * 0.5, APP_SIZE.HEIGHT * 0.5, 'circle-1')
-    //   .setRotation(Math.DegToRad(12));
-    // this.add
-    //   .sprite(APP_SIZE.WIDTH * 0.5, APP_SIZE.HEIGHT * 0.5, 'circle-2')
-    //   .setRotation(Math.DegToRad(12));
-    // this.add
-    //   .sprite(APP_SIZE.WIDTH * 0.5, APP_SIZE.HEIGHT * 0.5, 'circle-3')
-    //   .setRotation(Math.DegToRad(12));
 
     const circle1 = new MazeCircle(
       this.add.sprite(APP_SIZE.WIDTH * 0.5, APP_SIZE.HEIGHT * 0.5, 'circle-1'),
@@ -171,7 +150,7 @@ export class Circle extends Scene {
     this.progressBar = new ProgressBar(
       this,
       APP_SIZE.WIDTH * 0.5 - APP_SIZE.WIDTH * 0.35 * 0.5,
-      APP_SIZE.HEIGHT * 0.5 - 100,
+      APP_SIZE.HEIGHT * 0.5 - 130,
       0,
       time / 1000,
       time / 1000,

@@ -103,7 +103,7 @@ export class Sine extends Scene {
     this.progressBar = new ProgressBar(
       this,
       APP_SIZE.WIDTH * 0.5 - APP_SIZE.WIDTH * 0.35 * 0.5,
-      APP_SIZE.HEIGHT * 0.5 - 100,
+      APP_SIZE.HEIGHT * 0.5 - 130,
       0,
       time / 1000,
       time / 1000,

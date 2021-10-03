@@ -242,6 +242,7 @@ export class Lab extends Scene {
 
   gameOver() {
     console.log('GAME OVER');
+    this.scene.start(SCENE_KEY.GAME_OVER);
   }
 
   get currentPhaseSettings() {
@@ -261,35 +262,19 @@ export class Lab extends Scene {
     this.platforms = this.physics.add.staticGroup();
 
     this.floor1 = this.add
-      .tileSprite(APP_SIZE.WIDTH * 0.5, 560, APP_SIZE.WIDTH, 32 * 5, 'floor')
+      .tileSprite(APP_SIZE.WIDTH * 0.5, 570, APP_SIZE.WIDTH, 32 * 5, 'floor')
       .setTilePosition(0, 21);
     this.platforms.add(this.floor1);
     this.floor2 = this.add
-      .tileSprite(APP_SIZE.WIDTH * 0.5, 440, APP_SIZE.WIDTH, 16 * 5, 'floor')
+      .tileSprite(APP_SIZE.WIDTH * 0.5, 450, APP_SIZE.WIDTH, 16 * 5, 'floor')
       .setTilePosition(0, 21);
     this.floor3 = this.add.tileSprite(
       APP_SIZE.WIDTH * 0.5,
-      385,
+      395,
       APP_SIZE.WIDTH,
       30,
       'warning-line',
     );
-
-    // this.circleComp = this.add.sprite(
-    //   200,
-    //   APP_SIZE.HEIGHT * 0.5,
-    //   'block-ice-sample',
-    // );
-    // this.sineComp = this.add.sprite(
-    //   400,
-    //   APP_SIZE.HEIGHT * 0.5,
-    //   'block-ice-sample',
-    // );
-    // this.sequenceComp = this.add.sprite(
-    //   600,
-    //   APP_SIZE.HEIGHT * 0.5,
-    //   'block-ice-sample',
-    // );
 
     // this.electricitySwitcher = this.add
     //   .sprite(20, APP_SIZE.HEIGHT * 0.5 + 10, 'block-ice-sample')
