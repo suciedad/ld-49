@@ -1,54 +1,54 @@
 export const phase1 = {
-  time: 10000,
-  electricityOff: 1,
+  time: 20000,
+  electricityOff: 10,
   electricityTurnOn: 20,
   circleAccident: {
-    chance: 3,
+    chance: 10,
     time: 10000,
   },
   sequenceAccident: {
-    chance: 3,
+    chance: 10,
     length: 3,
     time: 5000,
   },
   sineAccident: {
-    chance: 3,
+    chance: 10,
   },
 };
 
 export const phase2 = {
-  time: 7000,
-  electricityOff: 2,
+  time: 70000,
+  electricityOff: 10,
   electricityTurnOn: 20,
   circleAccident: {
-    chance: 3,
+    chance: 15,
     time: 10000,
   },
   sequenceAccident: {
-    chance: 3,
+    chance: 15,
     length: 4,
     time: 5000,
   },
   sineAccident: {
-    chance: 3,
+    chance: 15,
   },
 };
 
 export const phase3 = {
-  time: 5000,
-  electricityOff: 3,
+  time: 90000,
+  electricityOff: 10,
   electricityTurnOn: 20,
   circleAccident: {
-    chance: 3,
+    chance: 20,
     time: 10000,
   },
   sequenceAccident: {
-    chance: 3,
+    chance: 20,
     length: 5,
     time: 5000,
   },
   sineAccident: {
-    chance: 3,
+    chance: 20,
   },
 };
 

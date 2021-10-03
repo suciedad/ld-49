@@ -19,13 +19,13 @@ const degRange = {
 };
 
 const speedRange = {
-  min: 0.01,
-  max: 0.04,
+  min: 0.02,
+  max: 0.05,
 };
 
 const circlePassedDegRange = {
-  min: -7.5,
-  max: 7.5,
+  min: -12,
+  max: 12,
 };
 
 class MazeCircle {
@@ -94,6 +94,18 @@ export class Circle extends Scene {
     // const circle3 = new MazeCircle(
     //   this.add.rectangle(320, 320, 30, 65, 0xf2c546),
     // );
+    // this.add.rectangle(320, 320, 30, 125, 0x154846);
+    // this.add.rectangle(320, 320, 30, 95, 0x945784);
+    // this.add.rectangle(320, 320, 30, 65, 0xf2c546);
+    // this.add
+    //   .sprite(APP_SIZE.WIDTH * 0.5, APP_SIZE.HEIGHT * 0.5, 'circle-1')
+    //   .setRotation(Math.DegToRad(12));
+    // this.add
+    //   .sprite(APP_SIZE.WIDTH * 0.5, APP_SIZE.HEIGHT * 0.5, 'circle-2')
+    //   .setRotation(Math.DegToRad(12));
+    // this.add
+    //   .sprite(APP_SIZE.WIDTH * 0.5, APP_SIZE.HEIGHT * 0.5, 'circle-3')
+    //   .setRotation(Math.DegToRad(12));
 
     const circle1 = new MazeCircle(
       this.add.sprite(APP_SIZE.WIDTH * 0.5, APP_SIZE.HEIGHT * 0.5, 'circle-1'),
@@ -108,7 +120,7 @@ export class Circle extends Scene {
     this.circles = [circle1, circle2, circle3];
 
     this.spaceKey = this.input.keyboard.addKey(
-      Phaser.Input.Keyboard.KeyCodes.SPACE,
+      Phaser.Input.Keyboard.KeyCodes.X,
     );
 
     const stopCircleHandler = (key, event) => {
@@ -166,9 +178,11 @@ export class Circle extends Scene {
       PROGRESS_STYLE,
     );
 
-    // TODO - For test
-    this.add.rectangle(320, 370, 5, 100, 0x00ff00);
-    // this.add.circle(320, 320, 3, 0xff0000);
+    this.add.sprite(
+      APP_SIZE.WIDTH * 0.5,
+      APP_SIZE.HEIGHT * 0.5 + 55,
+      'synapse-connector',
+    );
   }
 
   update() {

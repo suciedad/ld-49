@@ -13,16 +13,25 @@ import yellowPlayer from '../assets/yellow-player.png';
 import mainMenuButton from '../assets/main-menu-button-2.png';
 import sinePixelBlue from '../assets/sine-pixel-blue.png';
 import sinePixelRed from '../assets/sine-pixel-red.png';
+import crystal from '../assets/crystal.png';
 
 import circle1 from '../assets/circle-1.png';
 import circle2 from '../assets/circle-2.png';
 import circle3 from '../assets/circle-3.png';
+import ring1 from '../assets/ring-1.png';
+import ring2 from '../assets/ring-2.png';
+import ring3 from '../assets/ring-3.png';
+import ring1Passed from '../assets/ring-1-passed.png';
+import ring2Passed from '../assets/ring-2-passed.png';
+import ring3Passed from '../assets/ring-3-passed.png';
+import synapseConnector from '../assets/synapse-connector.png';
 
 import blockIceSample from '../assets/samples/block-ice-5x.png';
 import blockStoneSample from '../assets/samples/block-stone-5x.png';
 // import floor from '../assets/floor.png';
 // import floor from '../assets/floor-dark.png';
 import floor from '../assets/floor-white.png';
+import electricityOffLayout from '../assets/electricity-off-layout.png';
 
 import keyX from '../assets/key-x.png';
 import bang from '../assets/bang.png';
@@ -30,6 +39,8 @@ import bangAnim from '../assets/bang-animated.png';
 import compAnim from '../assets/comp-animated.png';
 import serverAnim from '../assets/server-anim.png';
 import sineAnim from '../assets/sine-anim.png';
+// import laserAnim from '../assets/laser-anim.png';
+import laserAnim from '../assets/laser-anim-2.png';
 
 import { ProgressBar } from '../components/progress-bar';
 
@@ -62,10 +73,16 @@ export class Loading extends Scene {
     this.load.image('main-menu-button', mainMenuButton);
     this.load.image('sine-pixel-blue', sinePixelBlue);
     this.load.image('sine-pixel-red', sinePixelRed);
+    this.load.image('electricity-off-layout', electricityOffLayout);
+    this.load.image('crystal', crystal);
 
-    this.load.image('circle-1', circle1);
-    this.load.image('circle-2', circle2);
-    this.load.image('circle-3', circle3);
+    // this.load.image('circle-1', circle1);
+    // this.load.image('circle-2', circle2);
+    // this.load.image('circle-3', circle3);
+    this.load.image('circle-1', ring1);
+    this.load.image('circle-2', ring2);
+    this.load.image('circle-3', ring3);
+    this.load.image('synapse-connector', synapseConnector);
 
     this.load.image('block-ice-sample', blockIceSample);
     this.load.image('block-stone-sample', blockStoneSample);
@@ -90,6 +107,14 @@ export class Loading extends Scene {
     this.load.spritesheet('sine-animated', 'sine-anim.png', {
       frameWidth: 120,
       frameHeight: 130,
+    });
+    // this.load.spritesheet('laser-animated', 'laser-anim.png', {
+    //   frameWidth: 35,
+    //   frameHeight: 160,
+    // });
+    this.load.spritesheet('laser-animated', 'laser-anim-2.png', {
+      frameWidth: 15,
+      frameHeight: 320,
     });
 
     // Sounds

@@ -16,11 +16,7 @@ const PLAYER_STATUS = {
   WALKING: 'walking',
   SOLVING: 'solving',
 };
-
-const ZONE_SIZE = {
-  WIDTH: 90,
-  HEIGHT: 100,
-};
+const ACCIDENT_INTERVAL = 1000;
 
 const rollChance = (chance, multiplier = 1) =>
   Math.FloatBetween(0, 100 * multiplier) <= chance;
@@ -38,6 +34,7 @@ export class Lab extends Scene {
 
     this.isElectricityOn = true;
     this.isCircleOk = true;
+    this.isSineOk = true;
     this.isSequenceOk = true;
 
     this.currentPhaseIndex = 0;
@@ -71,6 +68,14 @@ export class Lab extends Scene {
     this.isCircleOk = false;
   }
 
+  repairSine() {
+    this.isSineOk = true;
+  }
+
+  brokeSine() {
+    this.isSineOk = false;
+  }
+
   repairSequence() {
     this.isSequenceOk = true;
   }
@@ -85,6 +90,39 @@ export class Lab extends Scene {
   }
 
   startPhase() {
+    this.laser.visible = true;
+
+    this.accidentsInterval = setInterval(() => {
+      if (this.isElectricityOn && this.playerStatus === PLAYER_STATUS.WALKING) {
+        if (rollChance(this.currentPhaseSettings.electricityOff)) {
+          this.electricityTurnOff();
+        }
+      }
+
+      if (this.isCircleOk && this.playerStatus === PLAYER_STATUS.WALKING) {
+        if (rollChance(this.currentPhaseSettings.circleAccident.chance)) {
+          this.brokeCircle();
+        }
+      }
+
+      if (this.isSineOk && this.playerStatus === PLAYER_STATUS.WALKING) {
+        if (rollChance(this.currentPhaseSettings.sineAccident.chance)) {
+          this.brokeSine();
+        }
+      }
+
+      if (this.isSequenceOk && this.playerStatus === PLAYER_STATUS.WALKING) {
+        if (rollChance(this.currentPhaseSettings.sequenceAccident.chance)) {
+          this.brokeSequence();
+        }
+      }
+    }, ACCIDENT_INTERVAL);
+
+    // Последние 10 секунд без аварий, чтобы устранить уже возникнувшие
+    setTimeout(() => {
+      clearInterval(this.accidentsInterval);
+    }, this.currentPhaseSettings.time - 10000);
+
     // TIMER
     this.phaseTimer = this.time.addEvent({
       delay: this.currentPhaseSettings.time,
@@ -95,6 +133,12 @@ export class Lab extends Scene {
 
   stopPhase() {
     console.log(`Phase ${this.currentPhaseIndex + 1} completed!`);
+
+    this.laser.visible = false;
+
+    if (this.accidentsInterval) {
+      clearInterval(this.accidentsInterval);
+    }
 
     this.nextPhase();
 
@@ -118,14 +162,6 @@ export class Lab extends Scene {
 
     // SPRITES
     this.platforms = this.physics.add.staticGroup();
-    // this.floor = this.add.tileSprite(
-    //   APP_SIZE.WIDTH * 0.5,
-    //   380,
-    //   APP_SIZE.WIDTH,
-    //   40,
-    //   'block-stone-sample',
-    // );
-    // this.platforms.add(this.floor);
 
     this.floor1 = this.add
       .tileSprite(APP_SIZE.WIDTH * 0.5, 560, APP_SIZE.WIDTH, 32 * 5, 'floor')
@@ -134,6 +170,8 @@ export class Lab extends Scene {
     this.floor2 = this.add
       .tileSprite(APP_SIZE.WIDTH * 0.5, 440, APP_SIZE.WIDTH, 16 * 5, 'floor')
       .setTilePosition(0, 21);
+
+    this.circleComp = this.add.sprite(APP_SIZE.WIDTH * 0.5, 200, 'crystal');
 
     // this.circleComp = this.add.sprite(
     //   200,
@@ -150,6 +188,7 @@ export class Lab extends Scene {
     //   APP_SIZE.HEIGHT * 0.5,
     //   'block-ice-sample',
     // );
+
     this.electricitySwitcher = this.add
       .sprite(20, APP_SIZE.HEIGHT * 0.5 + 10, 'block-ice-sample')
       .setScale(0.5);
@@ -190,12 +229,25 @@ export class Lab extends Scene {
       repeat: -1,
     });
 
+    this.anims.create({
+      key: 'laser',
+      frames: this.anims.generateFrameNumbers('laser-animated', {
+        frames: [0, 1, 2],
+      }),
+      frameRate: 22,
+      repeat: -1,
+    });
+
     this.circleComp = this.add.sprite(200, 427).play('work');
     this.sineComp = this.add.sprite(350, 415).play('sineC');
     this.sequenceComp = this.add.sprite(560, 380).play('server');
 
     this.circleCompBang = this.add.sprite(200, 400).play('ding');
+    this.sineCompBang = this.add.sprite(360, 400).play('ding');
     this.sequenceCompBang = this.add.sprite(560, 380).play('ding');
+
+    this.laser = this.add.sprite(APP_SIZE.WIDTH * 0.5, -25).play('laser');
+    this.laser.visible = false;
 
     this.circleCompX = this.add.sprite(
       200,
@@ -217,6 +269,12 @@ export class Lab extends Scene {
     this.player = this.physics.add.sprite(30, APP_SIZE.HEIGHT * 0.5, 'player');
     this.player.setCollideWorldBounds(true);
 
+    this.electricityOffLayout = this.add.sprite(
+      APP_SIZE.WIDTH * 0.5,
+      APP_SIZE.HEIGHT * 0.5,
+      'electricity-off-layout',
+    );
+
     // KEYBOARD
     this.upKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
     this.downKey = this.input.keyboard.addKey(
@@ -235,9 +293,7 @@ export class Lab extends Scene {
 
     // ZONES
     this.electricitySwitcherZone = this.add.zone(20, 330).setSize(25, 25);
-    this.circleCompZone = this.add
-      .zone(200, 430)
-      .setSize(ZONE_SIZE.WIDTH, ZONE_SIZE.HEIGHT);
+    this.circleCompZone = this.add.zone(200, 430).setSize(90, 100);
     this.sineCompZone = this.add.zone(350, 415).setSize(120, 130);
     this.sequenceCompZone = this.add.zone(560, 380).setSize(160, 200);
 
@@ -367,24 +423,6 @@ export class Lab extends Scene {
       this.player.setVelocityY(-PLAYER_JUMP_VELOCITY);
     }
 
-    if (this.isElectricityOn && this.playerStatus === PLAYER_STATUS.WALKING) {
-      if (rollChance(this.currentPhaseSettings.electricityOff, 8)) {
-        this.electricityTurnOff();
-      }
-    }
-
-    if (this.isCircleOk && this.playerStatus === PLAYER_STATUS.WALKING) {
-      if (rollChance(this.currentPhaseSettings.circleAccident.chance, 8)) {
-        this.brokeCircle();
-      }
-    }
-
-    if (this.isSequenceOk && this.playerStatus === PLAYER_STATUS.WALKING) {
-      if (rollChance(this.currentPhaseSettings.sequenceAccident.chance, 8)) {
-        this.brokeSequence();
-      }
-    }
-
     this.electricitySwitcherZone.body.debugBodyColor = this
       .electricitySwitcherZone.body.touching.none
       ? 0x00ffff
@@ -432,6 +470,12 @@ export class Lab extends Scene {
       this.circleCompBang.visible = true;
     }
 
+    if (this.isSineOk) {
+      this.sineCompBang.visible = false;
+    } else {
+      this.sineCompBang.visible = true;
+    }
+
     if (this.isSequenceOk) {
       this.sequenceCompBang.visible = false;
     } else {
@@ -441,9 +485,9 @@ export class Lab extends Scene {
     if (this.phaseTimer) {
       this.phaseTimerText.setText(this.phaseTimer.getRemainingSeconds());
       if (this.isElectricityOn) {
-        this.cameras.main.backgroundColor.setTo(0xf6cea1);
+        this.electricityOffLayout.visible = false;
       } else {
-        this.cameras.main.backgroundColor.setTo(0x000000);
+        this.electricityOffLayout.visible = true;
       }
     }
   }
