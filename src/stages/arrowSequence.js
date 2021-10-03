@@ -3,6 +3,9 @@ import { ACCIDENT_EVENT } from '../constants/accidentEvents';
 import { APP_SIZE } from '../constants/app';
 import { DOWN } from '../constants/keyboardEvents';
 import { SCENE_KEY } from '../constants/scene-key';
+import { PROGRESS_STYLE } from '../constants/accidentTimerStyle';
+
+import { ProgressBar } from '../components/progress-bar';
 
 const TEXT_STYLE = {
   fill: '#fff',
@@ -57,8 +60,8 @@ export class ArrowSequence extends Scene {
     return this.enteredSequence.length === this.sequence.length;
   }
 
-  create() {
-    this.sequence = generateArrowSequence(5);
+  create({ length, time }) {
+    this.sequence = generateArrowSequence(length);
     this.enteredSequence = [];
 
     const upKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
@@ -101,20 +104,20 @@ export class ArrowSequence extends Scene {
         leftKey.off(DOWN, arrowKeyboardPushHandler);
         rightKey.off(DOWN, arrowKeyboardPushHandler);
 
+        this.progressBar.destroy();
+
         this.events.emit(ACCIDENT_EVENT.PASSED);
 
         return;
       }
 
       if (!this.isEnteredValid()) {
-        // setTimeout(() => {
-        //   this.scene.restart();
-        // }, 2000);
-
         upKey.off(DOWN, arrowKeyboardPushHandler);
         downKey.off(DOWN, arrowKeyboardPushHandler);
         leftKey.off(DOWN, arrowKeyboardPushHandler);
         rightKey.off(DOWN, arrowKeyboardPushHandler);
+
+        this.progressBar.destroy();
 
         this.events.emit(ACCIDENT_EVENT.FAILED);
 
@@ -136,7 +139,37 @@ export class ArrowSequence extends Scene {
         TEXT_STYLE,
       );
     });
+
+    // TIMER
+    this.timer = this.time.addEvent({
+      delay: time,
+      loop: false,
+      callback: () => {
+        upKey.off(DOWN, arrowKeyboardPushHandler);
+        downKey.off(DOWN, arrowKeyboardPushHandler);
+        leftKey.off(DOWN, arrowKeyboardPushHandler);
+        rightKey.off(DOWN, arrowKeyboardPushHandler);
+
+        this.progressBar.destroy();
+
+        this.events.emit(ACCIDENT_EVENT.FAILED);
+      },
+    });
+
+    this.progressBar = new ProgressBar(
+      this,
+      APP_SIZE.WIDTH * 0.5 - APP_SIZE.WIDTH * 0.35 * 0.5,
+      APP_SIZE.HEIGHT * 0.5 + 25 - 35,
+      0,
+      time / 1000,
+      time / 1000,
+      PROGRESS_STYLE,
+    );
   }
 
-  update() {}
+  update() {
+    const value = this.timer.getOverallRemainingSeconds();
+
+    this.progressBar.setValue(value);
+  }
 }

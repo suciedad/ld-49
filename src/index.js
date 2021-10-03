@@ -24,7 +24,7 @@ const GAME_SETTINGS = {
     default: PHYSICS_ARCADE,
     arcade: {
       gravity: { y: PHYSICS_ARCADE_GRAVITY },
-      debug: true,
+      // debug: true,
     },
   },
 };

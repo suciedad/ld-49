@@ -1,8 +1,11 @@
 import { Scene, Math } from 'phaser';
 import { ACCIDENT_EVENT } from '../constants/accidentEvents';
+import { PROGRESS_STYLE } from '../constants/accidentTimerStyle';
 import { APP_SIZE } from '../constants/app';
 import { DOWN } from '../constants/keyboardEvents';
 import { SCENE_KEY } from '../constants/scene-key';
+
+import { ProgressBar } from '../components/progress-bar';
 
 const CIRCLE_STATE = {
   ROTATING: 'rotating',
@@ -77,7 +80,7 @@ export class Circle extends Scene {
     return this.circles.some(({ state }) => state === CIRCLE_STATE.FAILED);
   }
 
-  create() {
+  create({ time }) {
     this.currentCircleIndex = 0;
     this.status = 'rotating';
 
@@ -122,6 +125,7 @@ export class Circle extends Scene {
 
       if (this.isAllCirclesPassed()) {
         this.spaceKey.off(DOWN, stopCircleHandler);
+        // this.progressBar.destroy();
         this.events.emit(ACCIDENT_EVENT.PASSED);
 
         return;
@@ -129,11 +133,8 @@ export class Circle extends Scene {
 
       if (this.isSomeCirclesFailed()) {
         this.spaceKey.off(DOWN, stopCircleHandler);
+        // this.progressBar.destroy();
         this.events.emit(ACCIDENT_EVENT.FAILED);
-
-        // setTimeout(() => {
-        //   this.scene.restart();
-        // }, 2000);
 
         return;
       }
@@ -149,10 +150,21 @@ export class Circle extends Scene {
       loop: false,
       callback: () => {
         this.status = 'stopped';
-        this.events.emit(ACCIDENT_EVENT.FAILED);
         this.spaceKey.off(DOWN, stopCircleHandler);
+        // this.progressBar.destroy();
+        this.events.emit(ACCIDENT_EVENT.FAILED);
       },
     });
+
+    this.progressBar = new ProgressBar(
+      this,
+      APP_SIZE.WIDTH * 0.5 - APP_SIZE.WIDTH * 0.35 * 0.5,
+      APP_SIZE.HEIGHT * 0.5 - 100,
+      0,
+      time / 1000,
+      time / 1000,
+      PROGRESS_STYLE,
+    );
 
     // TODO - For test
     this.add.rectangle(320, 370, 5, 100, 0x00ff00);
@@ -160,6 +172,10 @@ export class Circle extends Scene {
   }
 
   update() {
+    const value = this.timer.getOverallRemainingSeconds();
+
+    this.progressBar.setValue(value);
+
     if (this.status === 'rotating') {
       this.circles.forEach(({ state, subject, speed, direction }) => {
         if (state === CIRCLE_STATE.ROTATING) {

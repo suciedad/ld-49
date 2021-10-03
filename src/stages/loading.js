@@ -5,6 +5,7 @@ import { SCENE_KEY } from '../constants/scene-key';
 
 import { MAIN } from '../locales/main';
 
+import player from '../assets/player.png';
 import redPlayer from '../assets/red-player.png';
 import greenPlayer from '../assets/green-player.png';
 import bluePlayer from '../assets/blue-player.png';
@@ -19,9 +20,16 @@ import circle3 from '../assets/circle-3.png';
 
 import blockIceSample from '../assets/samples/block-ice-5x.png';
 import blockStoneSample from '../assets/samples/block-stone-5x.png';
+// import floor from '../assets/floor.png';
+// import floor from '../assets/floor-dark.png';
+import floor from '../assets/floor-white.png';
 
 import keyX from '../assets/key-x.png';
 import bang from '../assets/bang.png';
+import bangAnim from '../assets/bang-animated.png';
+import compAnim from '../assets/comp-animated.png';
+import serverAnim from '../assets/server-anim.png';
+import sineAnim from '../assets/sine-anim.png';
 
 import { ProgressBar } from '../components/progress-bar';
 
@@ -46,6 +54,7 @@ export class Loading extends Scene {
     });
 
     // Images
+    this.load.image('player', player);
     this.load.image('red-player', redPlayer);
     this.load.image('green-player', greenPlayer);
     this.load.image('blue-player', bluePlayer);
@@ -60,9 +69,28 @@ export class Loading extends Scene {
 
     this.load.image('block-ice-sample', blockIceSample);
     this.load.image('block-stone-sample', blockStoneSample);
+    this.load.image('floor', floor);
 
-    this.load.image('bang', bang);
+    // this.load.image('bang', bang);
     this.load.image('key-x', keyX);
+
+    // Animations
+    this.load.spritesheet('bang-animated', 'bang-animated.png', {
+      frameWidth: 25,
+      frameHeight: 45,
+    });
+    this.load.spritesheet('comp-animated', 'comp-animated.png', {
+      frameWidth: 90,
+      frameHeight: 105,
+    });
+    this.load.spritesheet('server-animated', 'server-anim.png', {
+      frameWidth: 160,
+      frameHeight: 200,
+    });
+    this.load.spritesheet('sine-animated', 'sine-anim.png', {
+      frameWidth: 120,
+      frameHeight: 130,
+    });
 
     // Sounds
 

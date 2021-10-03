@@ -4,6 +4,7 @@ import { ACCIDENT_EVENT } from '../constants/accidentEvents';
 import { APP_SIZE } from '../constants/app';
 import { DOWN } from '../constants/keyboardEvents';
 import { SCENE_KEY } from '../constants/scene-key';
+import { phases } from '../constants/phaseSettings';
 
 import { Circle } from './circle';
 import { Sine } from './sine';
@@ -17,8 +18,8 @@ const PLAYER_STATUS = {
 };
 
 const ZONE_SIZE = {
-  WIDTH: 60,
-  HEIGHT: 80,
+  WIDTH: 90,
+  HEIGHT: 100,
 };
 
 const rollChance = (chance, multiplier = 1) =>
@@ -36,11 +37,15 @@ export class Lab extends Scene {
     this.playerStatus = PLAYER_STATUS.WALKING;
 
     this.isElectricityOn = true;
+    this.isCircleOk = true;
+    this.isSequenceOk = true;
+
+    this.currentPhaseIndex = 0;
 
     // Chances to events, in percents
     this.chance = {
-      electricityOff: 1,
-      electricityTurnOn: 20,
+      electricityOff: this.currentPhaseSettings.electricityOff,
+      electricityTurnOn: this.currentPhaseSettings.electricityTurnOn,
     };
   }
 
@@ -58,51 +63,139 @@ export class Lab extends Scene {
     isSuccess && this.electricityTurnOn();
   }
 
+  repairCircle() {
+    this.isCircleOk = true;
+  }
+
+  brokeCircle() {
+    this.isCircleOk = false;
+  }
+
+  repairSequence() {
+    this.isSequenceOk = true;
+  }
+
+  brokeSequence() {
+    this.isSequenceOk = false;
+  }
+
   stopSolving(scene) {
     scene.remove();
     this.playerStatus = PLAYER_STATUS.WALKING;
   }
 
-  create() {
+  startPhase() {
     // TIMER
     this.phaseTimer = this.time.addEvent({
-      delay: 60000,
+      delay: this.currentPhaseSettings.time,
+      callback: () => this.stopPhase(),
       loop: false,
     });
+  }
+
+  stopPhase() {
+    console.log(`Phase ${this.currentPhaseIndex + 1} completed!`);
+
+    this.nextPhase();
+
+    if (this.currentPhaseIndex < phases.length) {
+      setTimeout(() => this.startPhase(), 3000);
+    }
+  }
+
+  nextPhase() {
+    this.currentPhaseIndex += 1;
+  }
+
+  get currentPhaseSettings() {
+    return phases[this.currentPhaseIndex] || phases[this.currentPhaseIndex - 1];
+  }
+
+  create() {
+    setTimeout(() => this.startPhase(), 3000);
 
     this.phaseTimerText = this.add.text(50, 50);
 
     // SPRITES
     this.platforms = this.physics.add.staticGroup();
-    this.floor = this.add.tileSprite(
-      APP_SIZE.WIDTH * 0.5,
-      380,
-      APP_SIZE.WIDTH,
-      40,
-      'block-stone-sample',
-    );
-    this.platforms.add(this.floor);
+    // this.floor = this.add.tileSprite(
+    //   APP_SIZE.WIDTH * 0.5,
+    //   380,
+    //   APP_SIZE.WIDTH,
+    //   40,
+    //   'block-stone-sample',
+    // );
+    // this.platforms.add(this.floor);
 
-    this.circleComp = this.add.sprite(
-      200,
-      APP_SIZE.HEIGHT * 0.5,
-      'block-ice-sample',
-    );
-    this.sineComp = this.add.sprite(
-      400,
-      APP_SIZE.HEIGHT * 0.5,
-      'block-ice-sample',
-    );
-    this.sequenceComp = this.add.sprite(
-      600,
-      APP_SIZE.HEIGHT * 0.5,
-      'block-ice-sample',
-    );
+    this.floor1 = this.add
+      .tileSprite(APP_SIZE.WIDTH * 0.5, 560, APP_SIZE.WIDTH, 32 * 5, 'floor')
+      .setTilePosition(0, 21);
+    this.platforms.add(this.floor1);
+    this.floor2 = this.add
+      .tileSprite(APP_SIZE.WIDTH * 0.5, 440, APP_SIZE.WIDTH, 16 * 5, 'floor')
+      .setTilePosition(0, 21);
+
+    // this.circleComp = this.add.sprite(
+    //   200,
+    //   APP_SIZE.HEIGHT * 0.5,
+    //   'block-ice-sample',
+    // );
+    // this.sineComp = this.add.sprite(
+    //   400,
+    //   APP_SIZE.HEIGHT * 0.5,
+    //   'block-ice-sample',
+    // );
+    // this.sequenceComp = this.add.sprite(
+    //   600,
+    //   APP_SIZE.HEIGHT * 0.5,
+    //   'block-ice-sample',
+    // );
     this.electricitySwitcher = this.add
       .sprite(20, APP_SIZE.HEIGHT * 0.5 + 10, 'block-ice-sample')
       .setScale(0.5);
 
-    this.sequenceCompBang = this.add.sprite(600, APP_SIZE.HEIGHT * 0.5, 'bang');
+    this.anims.create({
+      key: 'ding',
+      frames: this.anims.generateFrameNumbers('bang-animated', {
+        frames: [0, 1],
+      }),
+      frameRate: 9,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: 'work',
+      frames: this.anims.generateFrameNumbers('comp-animated', {
+        frames: [0, 1, 2, 3],
+      }),
+      frameRate: 7,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: 'sineC',
+      frames: this.anims.generateFrameNumbers('sine-animated', {
+        frames: [0, 1, 2, 3, 4],
+      }),
+      frameRate: 9,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: 'server',
+      frames: this.anims.generateFrameNumbers('server-animated', {
+        frames: [0, 1, 2, 3],
+      }),
+      frameRate: 8,
+      repeat: -1,
+    });
+
+    this.circleComp = this.add.sprite(200, 427).play('work');
+    this.sineComp = this.add.sprite(350, 415).play('sineC');
+    this.sequenceComp = this.add.sprite(560, 380).play('server');
+
+    this.circleCompBang = this.add.sprite(200, 400).play('ding');
+    this.sequenceCompBang = this.add.sprite(560, 380).play('ding');
 
     this.circleCompX = this.add.sprite(
       200,
@@ -121,11 +214,7 @@ export class Lab extends Scene {
       'key-x',
     );
 
-    this.player = this.physics.add.sprite(
-      30,
-      APP_SIZE.HEIGHT * 0.5,
-      'yellow-player',
-    );
+    this.player = this.physics.add.sprite(30, APP_SIZE.HEIGHT * 0.5, 'player');
     this.player.setCollideWorldBounds(true);
 
     // KEYBOARD
@@ -147,14 +236,10 @@ export class Lab extends Scene {
     // ZONES
     this.electricitySwitcherZone = this.add.zone(20, 330).setSize(25, 25);
     this.circleCompZone = this.add
-      .zone(200, 320)
+      .zone(200, 430)
       .setSize(ZONE_SIZE.WIDTH, ZONE_SIZE.HEIGHT);
-    this.sineCompZone = this.add
-      .zone(400, 320)
-      .setSize(ZONE_SIZE.WIDTH, ZONE_SIZE.HEIGHT);
-    this.sequenceCompZone = this.add
-      .zone(600, 320)
-      .setSize(ZONE_SIZE.WIDTH, ZONE_SIZE.HEIGHT);
+    this.sineCompZone = this.add.zone(350, 415).setSize(120, 130);
+    this.sequenceCompZone = this.add.zone(560, 380).setSize(160, 200);
 
     this.physics.world.enable([
       this.electricitySwitcherZone,
@@ -186,12 +271,14 @@ export class Lab extends Scene {
           this.playerStatus = PLAYER_STATUS.SOLVING;
 
           const circleScene = this.scene.add(SCENE_KEY.CIRCLE, Circle, true, {
-            x: 1000,
-            y: 1000,
+            time: this.currentPhaseSettings.circleAccident.time,
           });
 
           circleScene.events.on(ACCIDENT_EVENT.PASSED, () => {
-            setTimeout(() => this.stopSolving(circleScene.scene), 500);
+            setTimeout(() => {
+              this.stopSolving(circleScene.scene);
+              this.repairCircle();
+            }, 500);
           });
 
           circleScene.events.on(ACCIDENT_EVENT.FAILED, () => {
@@ -204,10 +291,7 @@ export class Lab extends Scene {
         if (!this.sineCompZone.body.touching.none && this.isElectricityOn) {
           this.playerStatus = PLAYER_STATUS.SOLVING;
 
-          const sineScene = this.scene.add(SCENE_KEY.SINE, Sine, true, {
-            x: 400,
-            y: 300,
-          });
+          const sineScene = this.scene.add(SCENE_KEY.SINE, Sine, true);
 
           sineScene.events.on(ACCIDENT_EVENT.PASSED, () => {
             setTimeout(() => this.stopSolving(sineScene.scene), 500);
@@ -228,17 +312,23 @@ export class Lab extends Scene {
             ArrowSequence,
             true,
             {
-              x: 400,
-              y: 300,
+              length: this.currentPhaseSettings.sequenceAccident.length,
+              time: this.currentPhaseSettings.sequenceAccident.time,
             },
           );
 
           sequenceScene.events.on(ACCIDENT_EVENT.PASSED, () => {
-            setTimeout(() => this.stopSolving(sequenceScene.scene), 500);
+            this.stopSolving(sequenceScene.scene);
+            this.repairSequence();
+            // setTimeout(() => {
+            //   this.stopSolving(sequenceScene.scene);
+            //   this.repairSequence();
+            // }, 500);
           });
 
           sequenceScene.events.on(ACCIDENT_EVENT.FAILED, () => {
-            setTimeout(() => this.stopSolving(sequenceScene.scene), 500);
+            this.stopSolving(sequenceScene.scene);
+            // setTimeout(() => this.stopSolving(sequenceScene.scene), 500);
           });
 
           return;
@@ -278,8 +368,20 @@ export class Lab extends Scene {
     }
 
     if (this.isElectricityOn && this.playerStatus === PLAYER_STATUS.WALKING) {
-      if (rollChance(this.chance.electricityOff, 8)) {
+      if (rollChance(this.currentPhaseSettings.electricityOff, 8)) {
         this.electricityTurnOff();
+      }
+    }
+
+    if (this.isCircleOk && this.playerStatus === PLAYER_STATUS.WALKING) {
+      if (rollChance(this.currentPhaseSettings.circleAccident.chance, 8)) {
+        this.brokeCircle();
+      }
+    }
+
+    if (this.isSequenceOk && this.playerStatus === PLAYER_STATUS.WALKING) {
+      if (rollChance(this.currentPhaseSettings.sequenceAccident.chance, 8)) {
+        this.brokeSequence();
       }
     }
 
@@ -305,6 +407,7 @@ export class Lab extends Scene {
       this.electricitySwitcherX.visible = true;
     }
 
+    // TODO - x кнопку показывать только когда сломалось
     if (this.circleCompZone.body.touching.none) {
       this.circleCompX.visible = false;
     } else {
@@ -323,11 +426,25 @@ export class Lab extends Scene {
       this.sequenceCompX.visible = true;
     }
 
-    this.phaseTimerText.setText(this.phaseTimer.getRemainingSeconds());
-    if (this.isElectricityOn) {
-      this.cameras.main.backgroundColor.setTo(0xf6cea1);
+    if (this.isCircleOk) {
+      this.circleCompBang.visible = false;
     } else {
-      this.cameras.main.backgroundColor.setTo(0x000000);
+      this.circleCompBang.visible = true;
+    }
+
+    if (this.isSequenceOk) {
+      this.sequenceCompBang.visible = false;
+    } else {
+      this.sequenceCompBang.visible = true;
+    }
+
+    if (this.phaseTimer) {
+      this.phaseTimerText.setText(this.phaseTimer.getRemainingSeconds());
+      if (this.isElectricityOn) {
+        this.cameras.main.backgroundColor.setTo(0xf6cea1);
+      } else {
+        this.cameras.main.backgroundColor.setTo(0x000000);
+      }
     }
   }
 }
