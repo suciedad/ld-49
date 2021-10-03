@@ -28,6 +28,20 @@ const arrowsViewMap = {
   right: '▶',
 };
 
+const arrowsSpriteMap = {
+  up: 'arrow-up',
+  down: 'arrow-down',
+  left: 'arrow-left',
+  right: 'arrow-right',
+};
+
+const arrowsPressedSpriteMap = {
+  up: 'arrow-up-pressed',
+  down: 'arrow-down-pressed',
+  left: 'arrow-left-pressed',
+  right: 'arrow-right-pressed',
+};
+
 const getRandomArrow = () => arrowsMap[Math.Between(0, 3)];
 
 const generateArrowSequence = (length) => {
@@ -46,6 +60,7 @@ export class ArrowSequence extends Scene {
 
     this.sequence = [];
     this.enteredSequence = [];
+    this.arrowKeys = [];
   }
 
   preload() {}
@@ -63,6 +78,7 @@ export class ArrowSequence extends Scene {
   create({ length, time }) {
     this.sequence = generateArrowSequence(length);
     this.enteredSequence = [];
+    this.arrowKeys = [];
 
     const upKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
     const downKey = this.input.keyboard.addKey(
@@ -132,11 +148,12 @@ export class ArrowSequence extends Scene {
 
     // ▲▼◀▶
     this.sequence.forEach((arrow, index) => {
-      this.add.text(
-        50 + index * 30,
-        APP_SIZE.HEIGHT * 0.5,
-        arrowsViewMap[arrow],
-        TEXT_STYLE,
+      this.arrowKeys.push(
+        this.add.sprite(
+          50 + index * 70,
+          APP_SIZE.HEIGHT * 0.5,
+          arrowsSpriteMap[arrow],
+        ),
       );
     });
 
@@ -171,5 +188,22 @@ export class ArrowSequence extends Scene {
     const value = this.timer.getOverallRemainingSeconds();
 
     this.progressBar.setValue(value);
+
+    // this.sequence.forEach((arrow, index) => {
+    //   this.arrowKeys = this.add.sprite(
+    //     50 + index * 70,
+    //     APP_SIZE.HEIGHT * 0.5,
+    //     arrowsSpriteMap[arrow],
+    //   );
+    // });
+
+    this.enteredSequence.forEach((arrow, index) => {
+      // this.arrowKeys[index] = this.add.sprite(
+      //   50 + index * 70,
+      //   APP_SIZE.HEIGHT * 0.5,
+      //   arrowsPressedSpriteMap[arrow],
+      // );
+      this.arrowKeys[index].setTexture(arrowsPressedSpriteMap[arrow]);
+    });
   }
 }

@@ -14,6 +14,8 @@ import mainMenuButton from '../assets/main-menu-button-2.png';
 import sinePixelBlue from '../assets/sine-pixel-blue.png';
 import sinePixelRed from '../assets/sine-pixel-red.png';
 import crystal from '../assets/crystal.png';
+import warningLine from '../assets/warning-line.png';
+import sineScreen from '../assets/sine-screen.png';
 
 import circle1 from '../assets/circle-1.png';
 import circle2 from '../assets/circle-2.png';
@@ -25,6 +27,15 @@ import ring1Passed from '../assets/ring-1-passed.png';
 import ring2Passed from '../assets/ring-2-passed.png';
 import ring3Passed from '../assets/ring-3-passed.png';
 import synapseConnector from '../assets/synapse-connector.png';
+
+import arrowUp from '../assets/arrow-up.png';
+import arrowDown from '../assets/arrow-down.png';
+import arrowLeft from '../assets/arrow-left.png';
+import arrowRight from '../assets/arrow-right.png';
+import arrowUpPressed from '../assets/arrow-up-pressed.png';
+import arrowDownPressed from '../assets/arrow-down-pressed.png';
+import arrowLeftPressed from '../assets/arrow-left-pressed.png';
+import arrowRightPressed from '../assets/arrow-right-pressed.png';
 
 import blockIceSample from '../assets/samples/block-ice-5x.png';
 import blockStoneSample from '../assets/samples/block-stone-5x.png';
@@ -41,6 +52,8 @@ import serverAnim from '../assets/server-anim.png';
 import sineAnim from '../assets/sine-anim.png';
 // import laserAnim from '../assets/laser-anim.png';
 import laserAnim from '../assets/laser-anim-2.png';
+import plateAnim from '../assets/plate-anim.png';
+import generatorAnim from '../assets/generator.png';
 
 import { ProgressBar } from '../components/progress-bar';
 
@@ -75,6 +88,17 @@ export class Loading extends Scene {
     this.load.image('sine-pixel-red', sinePixelRed);
     this.load.image('electricity-off-layout', electricityOffLayout);
     this.load.image('crystal', crystal);
+    this.load.image('warning-line', warningLine);
+    this.load.image('sine-screen', sineScreen);
+
+    this.load.image('arrow-up', arrowUp);
+    this.load.image('arrow-down', arrowDown);
+    this.load.image('arrow-left', arrowLeft);
+    this.load.image('arrow-right', arrowRight);
+    this.load.image('arrow-up-pressed', arrowUpPressed);
+    this.load.image('arrow-down-pressed', arrowDownPressed);
+    this.load.image('arrow-left-pressed', arrowLeftPressed);
+    this.load.image('arrow-right-pressed', arrowRightPressed);
 
     // this.load.image('circle-1', circle1);
     // this.load.image('circle-2', circle2);
@@ -116,8 +140,14 @@ export class Loading extends Scene {
       frameWidth: 15,
       frameHeight: 320,
     });
-
-    // Sounds
+    this.load.spritesheet('plate-animated', 'plate-anim.png', {
+      frameWidth: 200,
+      frameHeight: 105,
+    });
+    this.load.spritesheet('generator-animated', 'generator.png', {
+      frameWidth: 85,
+      frameHeight: 140,
+    });
 
     const progressBar = new ProgressBar(
       this,

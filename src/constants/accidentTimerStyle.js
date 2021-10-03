@@ -8,3 +8,12 @@ export const PROGRESS_STYLE = {
   padding: 5,
   borderRadius: 0,
 };
+
+export const REACT_PROGRESS_STYLE = {
+  bgColor: 0x29366f,
+  barColor: 0x38b764,
+  width: 75,
+  height: 5,
+  padding: 0,
+  borderRadius: 0,
+};

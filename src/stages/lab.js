@@ -1,4 +1,4 @@
-import { Scene, Math } from 'phaser';
+import { Scene, Math, GameObjects } from 'phaser';
 
 import { ACCIDENT_EVENT } from '../constants/accidentEvents';
 import { APP_SIZE } from '../constants/app';
@@ -9,6 +9,11 @@ import { phases } from '../constants/phaseSettings';
 import { Circle } from './circle';
 import { Sine } from './sine';
 import { ArrowSequence } from './arrowSequence';
+import { ProgressBar } from '../components/progress-bar';
+import {
+  REACT_PROGRESS_STYLE,
+  PROGRESS_STYLE,
+} from '../constants/accidentTimerStyle';
 
 const PLAYER_SPEED = 5;
 const PLAYER_JUMP_VELOCITY = 350;
@@ -17,6 +22,7 @@ const PLAYER_STATUS = {
   SOLVING: 'solving',
 };
 const ACCIDENT_INTERVAL = 1000;
+const TIME_TO_REACT = 10000;
 
 const rollChance = (chance, multiplier = 1) =>
   Math.FloatBetween(0, 100 * multiplier) <= chance;
@@ -28,6 +34,10 @@ export class Lab extends Scene {
     this.circleComp = null;
     this.sineComp = null;
     this.sequenceComp = null;
+
+    this.circleCompHP = 7;
+    this.sineCompHP = 5;
+    this.sequenceCompHP = 5;
 
     this.player = null;
     this.playerStatus = PLAYER_STATUS.WALKING;
@@ -66,6 +76,20 @@ export class Lab extends Scene {
 
   brokeCircle() {
     this.isCircleOk = false;
+
+    this.circleReactTimeout = this.time.addEvent({
+      delay: TIME_TO_REACT,
+      loop: false,
+      callback: () => {
+        this.repairCircle();
+        this.circleCompHP -= 1;
+        this.damageSystemParticles(this.circleComp);
+        this.circleReactTimeout = null;
+        if (this.isAnySystemBroken()) {
+          this.gameOver();
+        }
+      },
+    });
   }
 
   repairSine() {
@@ -74,6 +98,20 @@ export class Lab extends Scene {
 
   brokeSine() {
     this.isSineOk = false;
+
+    this.sineReactTimeout = this.time.addEvent({
+      delay: TIME_TO_REACT,
+      loop: false,
+      callback: () => {
+        this.repairSine();
+        this.sineCompHP -= 1;
+        this.damageSystemParticles(this.sineComp);
+        this.sineReactTimeout = null;
+        if (this.isAnySystemBroken()) {
+          this.gameOver();
+        }
+      },
+    });
   }
 
   repairSequence() {
@@ -82,6 +120,20 @@ export class Lab extends Scene {
 
   brokeSequence() {
     this.isSequenceOk = false;
+
+    this.sequenceReactTimeout = this.time.addEvent({
+      delay: TIME_TO_REACT,
+      loop: false,
+      callback: () => {
+        this.repairSequence();
+        this.sequenceCompHP -= 1;
+        this.damageSystemParticles(this.sequenceComp);
+        this.sequenceReactTimeout = null;
+        if (this.isAnySystemBroken()) {
+          this.gameOver();
+        }
+      },
+    });
   }
 
   stopSolving(scene) {
@@ -151,12 +203,57 @@ export class Lab extends Scene {
     this.currentPhaseIndex += 1;
   }
 
+  isAnySystemBroken() {
+    if (this.circleCompHP <= 0) {
+      return true;
+    }
+
+    if (this.sineCompHP <= 0) {
+      return true;
+    }
+
+    if (this.sequenceCompHP <= 0) {
+      return true;
+    }
+
+    return false;
+  }
+
+  damageSystemParticles(system) {
+    const particles = this.add.particles('key-x');
+
+    let emitter = particles.createEmitter({
+      x: system.x,
+      y: system.y - 50,
+      quantity: 1,
+      frequency: 40,
+      scale: 0.2,
+      angle: { min: -40, max: 240 },
+      speed: 300,
+      gravityY: 600,
+      lifespan: { min: 300, max: 600 },
+    });
+
+    setTimeout(() => {
+      emitter.stop();
+      setTimeout(() => particles.destroy(), 500);
+    }, 1000);
+  }
+
+  gameOver() {
+    console.log('GAME OVER');
+  }
+
   get currentPhaseSettings() {
     return phases[this.currentPhaseIndex] || phases[this.currentPhaseIndex - 1];
   }
 
   create() {
-    setTimeout(() => this.startPhase(), 3000);
+    this.circleCompHP = 7;
+    this.sineCompHP = 5;
+    this.sequenceCompHP = 5;
+
+    setTimeout(() => this.startPhase(), 2000);
 
     this.phaseTimerText = this.add.text(50, 50);
 
@@ -170,8 +267,13 @@ export class Lab extends Scene {
     this.floor2 = this.add
       .tileSprite(APP_SIZE.WIDTH * 0.5, 440, APP_SIZE.WIDTH, 16 * 5, 'floor')
       .setTilePosition(0, 21);
-
-    this.circleComp = this.add.sprite(APP_SIZE.WIDTH * 0.5, 200, 'crystal');
+    this.floor3 = this.add.tileSprite(
+      APP_SIZE.WIDTH * 0.5,
+      385,
+      APP_SIZE.WIDTH,
+      30,
+      'warning-line',
+    );
 
     // this.circleComp = this.add.sprite(
     //   200,
@@ -189,9 +291,9 @@ export class Lab extends Scene {
     //   'block-ice-sample',
     // );
 
-    this.electricitySwitcher = this.add
-      .sprite(20, APP_SIZE.HEIGHT * 0.5 + 10, 'block-ice-sample')
-      .setScale(0.5);
+    // this.electricitySwitcher = this.add
+    //   .sprite(20, APP_SIZE.HEIGHT * 0.5 + 10, 'block-ice-sample')
+    //   .setScale(0.5);
 
     this.anims.create({
       key: 'ding',
@@ -230,6 +332,15 @@ export class Lab extends Scene {
     });
 
     this.anims.create({
+      key: 'generator',
+      frames: this.anims.generateFrameNumbers('generator-animated', {
+        frames: [0, 1, 2, 3],
+      }),
+      frameRate: 12,
+      repeat: -1,
+    });
+
+    this.anims.create({
       key: 'laser',
       frames: this.anims.generateFrameNumbers('laser-animated', {
         frames: [0, 1, 2],
@@ -238,6 +349,20 @@ export class Lab extends Scene {
       repeat: -1,
     });
 
+    this.anims.create({
+      key: 'plate',
+      frames: this.anims.generateFrameNumbers('plate-animated', {
+        frames: [0, 1, 2, 3, 4],
+      }),
+      frameRate: 7,
+      repeat: -1,
+    });
+
+    this.plate = this.add.sprite(APP_SIZE.WIDTH * 0.5, 250).play('plate');
+
+    this.crystal = this.add.sprite(APP_SIZE.WIDTH * 0.5, 150, 'crystal');
+
+    this.electricitySwitcher = this.add.sprite(42, 420).play('generator');
     this.circleComp = this.add.sprite(200, 427).play('work');
     this.sineComp = this.add.sprite(350, 415).play('sineC');
     this.sequenceComp = this.add.sprite(560, 380).play('server');
@@ -246,7 +371,7 @@ export class Lab extends Scene {
     this.sineCompBang = this.add.sprite(360, 400).play('ding');
     this.sequenceCompBang = this.add.sprite(560, 380).play('ding');
 
-    this.laser = this.add.sprite(APP_SIZE.WIDTH * 0.5, -25).play('laser');
+    this.laser = this.add.sprite(APP_SIZE.WIDTH * 0.5, -75).play('laser');
     this.laser.visible = false;
 
     this.circleCompX = this.add.sprite(
@@ -292,7 +417,7 @@ export class Lab extends Scene {
     this.physics.add.collider(this.player, this.platforms);
 
     // ZONES
-    this.electricitySwitcherZone = this.add.zone(20, 330).setSize(25, 25);
+    this.electricitySwitcherZone = this.add.zone(35, 415).setSize(60, 125);
     this.circleCompZone = this.add.zone(200, 430).setSize(90, 100);
     this.sineCompZone = this.add.zone(350, 415).setSize(120, 130);
     this.sequenceCompZone = this.add.zone(560, 380).setSize(160, 200);
@@ -326,6 +451,11 @@ export class Lab extends Scene {
         if (!this.circleCompZone.body.touching.none && this.isElectricityOn) {
           this.playerStatus = PLAYER_STATUS.SOLVING;
 
+          if (this.circleReactTimeout) {
+            this.circleReactTimeout.remove();
+            this.circleReactTimeout = null;
+          }
+
           const circleScene = this.scene.add(SCENE_KEY.CIRCLE, Circle, true, {
             time: this.currentPhaseSettings.circleAccident.time,
           });
@@ -338,7 +468,29 @@ export class Lab extends Scene {
           });
 
           circleScene.events.on(ACCIDENT_EVENT.FAILED, () => {
-            setTimeout(() => this.stopSolving(circleScene.scene), 500);
+            setTimeout(() => {
+              this.stopSolving(circleScene.scene);
+              this.circleCompHP -= 1;
+              this.damageSystemParticles(this.circleComp);
+
+              if (this.isAnySystemBroken()) {
+                this.gameOver();
+              }
+
+              this.circleReactTimeout = this.time.addEvent({
+                delay: TIME_TO_REACT,
+                loop: false,
+                callback: () => {
+                  this.repairCircle();
+                  this.circleCompHP -= 1;
+                  this.damageSystemParticles(this.circleComp);
+                  this.circleReactTimeout = null;
+                  if (this.isAnySystemBroken()) {
+                    this.gameOver();
+                  }
+                },
+              });
+            }, 500);
           });
 
           return;
@@ -347,14 +499,43 @@ export class Lab extends Scene {
         if (!this.sineCompZone.body.touching.none && this.isElectricityOn) {
           this.playerStatus = PLAYER_STATUS.SOLVING;
 
-          const sineScene = this.scene.add(SCENE_KEY.SINE, Sine, true);
+          if (this.sineReactTimeout) {
+            this.sineReactTimeout.remove();
+            this.sineReactTimeout = null;
+          }
+
+          const sineScene = this.scene.add(SCENE_KEY.SINE, Sine, true, {
+            time: this.currentPhaseSettings.sineAccident.time,
+          });
 
           sineScene.events.on(ACCIDENT_EVENT.PASSED, () => {
             setTimeout(() => this.stopSolving(sineScene.scene), 500);
           });
 
           sineScene.events.on(ACCIDENT_EVENT.FAILED, () => {
-            setTimeout(() => this.stopSolving(sineScene.scene), 500);
+            setTimeout(() => {
+              this.stopSolving(sineScene.scene);
+              this.sineCompHP -= 1;
+              this.damageSystemParticles(this.sineComp);
+
+              if (this.isAnySystemBroken()) {
+                this.gameOver();
+              }
+
+              this.sineReactTimeout = this.time.addEvent({
+                delay: TIME_TO_REACT,
+                loop: false,
+                callback: () => {
+                  this.repairSine();
+                  this.sineCompHP -= 1;
+                  this.damageSystemParticles(this.sineComp);
+                  this.sineReactTimeout = null;
+                  if (this.isAnySystemBroken()) {
+                    this.gameOver();
+                  }
+                },
+              });
+            }, 500);
           });
 
           return;
@@ -362,6 +543,11 @@ export class Lab extends Scene {
 
         if (!this.sequenceCompZone.body.touching.none && this.isElectricityOn) {
           this.playerStatus = PLAYER_STATUS.SOLVING;
+
+          if (this.sequenceReactTimeout) {
+            this.sequenceReactTimeout.remove();
+            this.sequenceReactTimeout = null;
+          }
 
           const sequenceScene = this.scene.add(
             SCENE_KEY.ARROW_SEQUENCE,
@@ -376,15 +562,30 @@ export class Lab extends Scene {
           sequenceScene.events.on(ACCIDENT_EVENT.PASSED, () => {
             this.stopSolving(sequenceScene.scene);
             this.repairSequence();
-            // setTimeout(() => {
-            //   this.stopSolving(sequenceScene.scene);
-            //   this.repairSequence();
-            // }, 500);
           });
 
           sequenceScene.events.on(ACCIDENT_EVENT.FAILED, () => {
             this.stopSolving(sequenceScene.scene);
-            // setTimeout(() => this.stopSolving(sequenceScene.scene), 500);
+            this.sequenceCompHP -= 1;
+            this.damageSystemParticles(this.sequenceComp);
+
+            if (this.isAnySystemBroken()) {
+              this.gameOver();
+            }
+
+            this.sequenceReactTimeout = this.time.addEvent({
+              delay: TIME_TO_REACT,
+              loop: false,
+              callback: () => {
+                this.repairSequence();
+                this.sequenceCompHP -= 1;
+                this.damageSystemParticles(this.sequenceComp);
+                this.sequenceReactTimeout = null;
+                if (this.isAnySystemBroken()) {
+                  this.gameOver();
+                }
+              },
+            });
           });
 
           return;
@@ -400,9 +601,70 @@ export class Lab extends Scene {
         }
       }
     });
+
+    this.circleReactTimeoutBar = new ProgressBar(
+      this,
+      160,
+      360,
+      0,
+      TIME_TO_REACT / 1000,
+      TIME_TO_REACT / 1000,
+      REACT_PROGRESS_STYLE,
+    );
+
+    this.sineReactTimeoutBar = new ProgressBar(
+      this,
+      310,
+      330,
+      0,
+      TIME_TO_REACT / 1000,
+      TIME_TO_REACT / 1000,
+      REACT_PROGRESS_STYLE,
+    );
+
+    this.sequenceReactTimeoutBar = new ProgressBar(
+      this,
+      525,
+      260,
+      0,
+      TIME_TO_REACT / 1000,
+      TIME_TO_REACT / 1000,
+      REACT_PROGRESS_STYLE,
+    );
   }
 
   update() {
+    // TIMERS UPDATE
+    if (this.circleReactTimeout) {
+      this.circleReactTimeoutBar.visible = true;
+    } else {
+      this.circleReactTimeoutBar.visible = false;
+    }
+    if (this.circleReactTimeout && this.circleReactTimeoutBar) {
+      const value = this.circleReactTimeout.getOverallRemainingSeconds();
+      this.circleReactTimeoutBar.setValue(value);
+    }
+
+    if (this.sineReactTimeout) {
+      this.sineReactTimeoutBar.visible = true;
+    } else {
+      this.sineReactTimeoutBar.visible = false;
+    }
+    if (this.sineReactTimeout && this.sineReactTimeoutBar) {
+      const value = this.sineReactTimeout.getOverallRemainingSeconds();
+      this.sineReactTimeoutBar.setValue(value);
+    }
+
+    if (this.sequenceReactTimeout) {
+      this.sequenceReactTimeoutBar.visible = true;
+    } else {
+      this.sequenceReactTimeoutBar.visible = false;
+    }
+    if (this.sequenceReactTimeout && this.sequenceReactTimeoutBar) {
+      const value = this.sequenceReactTimeout.getOverallRemainingSeconds();
+      this.sequenceReactTimeoutBar.setValue(value);
+    }
+
     if (this.leftKey.isDown && this.playerStatus === PLAYER_STATUS.WALKING) {
       this.player.x -= PLAYER_SPEED;
       this.player.flipX = true;

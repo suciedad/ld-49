@@ -158,7 +158,7 @@ export class Circle extends Scene {
 
     // TIMER
     this.timer = this.time.addEvent({
-      delay: 10000,
+      delay: time,
       loop: false,
       callback: () => {
         this.status = 'stopped';
