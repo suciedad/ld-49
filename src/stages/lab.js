@@ -15,14 +15,14 @@ import {
   PROGRESS_STYLE,
 } from '../constants/accidentTimerStyle';
 
-const PLAYER_SPEED = 5;
+const PLAYER_SPEED = 6;
 const PLAYER_JUMP_VELOCITY = 350;
 const PLAYER_STATUS = {
   WALKING: 'walking',
   SOLVING: 'solving',
 };
-const ACCIDENT_INTERVAL = 1000;
-const TIME_TO_REACT = 10000;
+const ACCIDENT_INTERVAL = 1200;
+const TIME_TO_REACT = 17000;
 
 const rollChance = (chance, multiplier = 1) =>
   Math.FloatBetween(0, 100 * multiplier) <= chance;
@@ -196,6 +196,8 @@ export class Lab extends Scene {
 
     if (this.currentPhaseIndex < phases.length) {
       setTimeout(() => this.startPhase(), 3000);
+    } else {
+      this.scene.start(SCENE_KEY.WIN);
     }
   }
 
@@ -256,11 +258,16 @@ export class Lab extends Scene {
 
     setTimeout(() => this.startPhase(), 2000);
 
-    this.phaseTimerText = this.add.text(50, 50);
-
     // SPRITES
     this.platforms = this.physics.add.staticGroup();
 
+    this.floor4 = this.add.tileSprite(
+      APP_SIZE.WIDTH * 0.5,
+      APP_SIZE.HEIGHT * 0.5,
+      APP_SIZE.WIDTH,
+      APP_SIZE.HEIGHT,
+      'floor-dark',
+    );
     this.floor1 = this.add
       .tileSprite(APP_SIZE.WIDTH * 0.5, 570, APP_SIZE.WIDTH, 32 * 5, 'floor')
       .setTilePosition(0, 21);
@@ -359,31 +366,31 @@ export class Lab extends Scene {
     this.laser = this.add.sprite(APP_SIZE.WIDTH * 0.5, -75).play('laser');
     this.laser.visible = false;
 
-    this.circleCompX = this.add.sprite(
-      200,
-      APP_SIZE.HEIGHT * 0.5 - 50,
-      'key-x',
-    );
-    this.sineCompX = this.add.sprite(400, APP_SIZE.HEIGHT * 0.5 - 50, 'key-x');
-    this.sequenceCompX = this.add.sprite(
-      600,
-      APP_SIZE.HEIGHT * 0.5 - 50,
-      'key-x',
-    );
-    this.electricitySwitcherX = this.add.sprite(
-      20,
-      APP_SIZE.HEIGHT * 0.5 - 35,
-      'key-x',
-    );
+    this.circleCompX = this.add.sprite(200, 540, 'key-x');
+    this.sineCompX = this.add.sprite(340, 540, 'key-x');
+    this.sequenceCompX = this.add.sprite(560, 540, 'key-x');
+    this.electricitySwitcherX = this.add.sprite(40, 540, 'key-x');
 
-    this.player = this.physics.add.sprite(30, APP_SIZE.HEIGHT * 0.5, 'player');
+    this.player = this.physics.add.sprite(115, 460, 'player');
     this.player.setCollideWorldBounds(true);
+
+    this.glass = this.add.tileSprite(
+      APP_SIZE.WIDTH * 0.5,
+      APP_SIZE.HEIGHT * 0.5 - 200,
+      APP_SIZE.WIDTH,
+      APP_SIZE.HEIGHT - 200,
+      'glass',
+    );
 
     this.electricityOffLayout = this.add.sprite(
       APP_SIZE.WIDTH * 0.5,
       APP_SIZE.HEIGHT * 0.5,
       'electricity-off-layout',
     );
+
+    this.add.rectangle(20, 20, 170, 55, 0x00000).setOrigin(0, 0);
+    this.phaseCounterText = this.add.text(30, 30);
+    this.phaseTimerText = this.add.text(30, 50);
 
     // KEYBOARD
     this.upKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
@@ -433,7 +440,11 @@ export class Lab extends Scene {
     // KEYBOARD PROCESS
     this.xKey.on(DOWN, () => {
       if (this.playerStatus === PLAYER_STATUS.WALKING) {
-        if (!this.circleCompZone.body.touching.none && this.isElectricityOn) {
+        if (
+          !this.circleCompZone.body.touching.none &&
+          !this.isCircleOk &&
+          this.isElectricityOn
+        ) {
           this.playerStatus = PLAYER_STATUS.SOLVING;
 
           if (this.circleReactTimeout) {
@@ -481,7 +492,11 @@ export class Lab extends Scene {
           return;
         }
 
-        if (!this.sineCompZone.body.touching.none && this.isElectricityOn) {
+        if (
+          !this.sineCompZone.body.touching.none &&
+          !this.isSineOk &&
+          this.isElectricityOn
+        ) {
           this.playerStatus = PLAYER_STATUS.SOLVING;
 
           if (this.sineReactTimeout) {
@@ -494,7 +509,10 @@ export class Lab extends Scene {
           });
 
           sineScene.events.on(ACCIDENT_EVENT.PASSED, () => {
-            setTimeout(() => this.stopSolving(sineScene.scene), 500);
+            setTimeout(() => {
+              this.stopSolving(sineScene.scene);
+              this.repairSine();
+            }, 500);
           });
 
           sineScene.events.on(ACCIDENT_EVENT.FAILED, () => {
@@ -526,7 +544,11 @@ export class Lab extends Scene {
           return;
         }
 
-        if (!this.sequenceCompZone.body.touching.none && this.isElectricityOn) {
+        if (
+          !this.sequenceCompZone.body.touching.none &&
+          !this.isSequenceOk &&
+          this.isElectricityOn
+        ) {
           this.playerStatus = PLAYER_STATUS.SOLVING;
 
           if (this.sequenceReactTimeout) {
@@ -730,12 +752,21 @@ export class Lab extends Scene {
     }
 
     if (this.phaseTimer) {
-      this.phaseTimerText.setText(this.phaseTimer.getRemainingSeconds());
+      this.phaseCounterText.setText(
+        `Phase ${this.currentPhaseIndex + 1} ends in:`,
+      );
+      this.phaseTimerText.setText(
+        Math.FloorTo(this.phaseTimer.getRemainingSeconds()),
+      );
       if (this.isElectricityOn) {
         this.electricityOffLayout.visible = false;
       } else {
         this.electricityOffLayout.visible = true;
       }
+    }
+
+    if (!this.phaseTimer) {
+      this.electricityOffLayout.visible = !this.isElectricityOn;
     }
   }
 }

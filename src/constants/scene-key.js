@@ -6,4 +6,5 @@ export const SCENE_KEY = {
   SINE: 'sine',
   LAB: 'lab',
   GAME_OVER: 'game-over',
+  WIN: 'win',
 };

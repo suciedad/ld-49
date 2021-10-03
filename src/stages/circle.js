@@ -19,13 +19,13 @@ const degRange = {
 };
 
 const speedRange = {
-  min: 0.02,
+  min: 0.025,
   max: 0.05,
 };
 
 const circlePassedDegRange = {
-  min: -12,
-  max: 12,
+  min: -14,
+  max: 14,
 };
 
 class MazeCircle {

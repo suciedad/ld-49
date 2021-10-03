@@ -41,7 +41,10 @@ import blockIceSample from '../assets/samples/block-ice-5x.png';
 import blockStoneSample from '../assets/samples/block-stone-5x.png';
 // import floor from '../assets/floor.png';
 // import floor from '../assets/floor-dark.png';
-import floor from '../assets/floor-white.png';
+// import floor from '../assets/floor-white.png';
+import floor from '../assets/floor-big.png';
+import floorDark from '../assets/floor-big-darken.png';
+import glass from '../assets/glass.png';
 import electricityOffLayout from '../assets/electricity-off-layout.png';
 
 import keyX from '../assets/key-x.png';
@@ -111,6 +114,8 @@ export class Loading extends Scene {
     this.load.image('block-ice-sample', blockIceSample);
     this.load.image('block-stone-sample', blockStoneSample);
     this.load.image('floor', floor);
+    this.load.image('floor-dark', floorDark);
+    this.load.image('glass', glass);
 
     // this.load.image('bang', bang);
     this.load.image('key-x', keyX);

@@ -33,7 +33,7 @@ export class Sine extends Scene {
   preload() {}
 
   isSignalMatch() {
-    const isCosAmpMatch = this.redSineCosAmp >= -10 && this.redSineCosAmp <= 10;
+    const isCosAmpMatch = this.redSineCosAmp >= -20 && this.redSineCosAmp <= 20;
     const isFreqMatch = this.redSineFreq >= 5.7 && this.redSineFreq <= 6.3;
 
     return isCosAmpMatch && isFreqMatch;
