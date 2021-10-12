@@ -15,7 +15,7 @@ import {
   PROGRESS_STYLE,
 } from '../constants/accidentTimerStyle';
 
-const PLAYER_SPEED = 6;
+const PLAYER_SPEED = 375;
 const PLAYER_JUMP_VELOCITY = 350;
 const PLAYER_STATUS = {
   WALKING: 'walking',
@@ -354,6 +354,16 @@ export class Lab extends Scene {
 
     this.crystal = this.add.sprite(APP_SIZE.WIDTH * 0.5, 150, 'crystal');
 
+    this.laser = this.add.sprite(APP_SIZE.WIDTH * 0.5, -75).play('laser');
+
+    this.glass = this.add.tileSprite(
+      APP_SIZE.WIDTH * 0.5,
+      APP_SIZE.HEIGHT * 0.5 - 160,
+      APP_SIZE.WIDTH,
+      APP_SIZE.HEIGHT - 200,
+      'glass',
+    );
+
     this.electricitySwitcher = this.add.sprite(42, 420).play('generator');
     this.circleComp = this.add.sprite(200, 427).play('work');
     this.sineComp = this.add.sprite(350, 415).play('sineC');
@@ -363,7 +373,6 @@ export class Lab extends Scene {
     this.sineCompBang = this.add.sprite(360, 400).play('ding');
     this.sequenceCompBang = this.add.sprite(560, 380).play('ding');
 
-    this.laser = this.add.sprite(APP_SIZE.WIDTH * 0.5, -75).play('laser');
     this.laser.visible = false;
 
     this.circleCompX = this.add.sprite(200, 540, 'key-x');
@@ -373,14 +382,6 @@ export class Lab extends Scene {
 
     this.player = this.physics.add.sprite(115, 460, 'player');
     this.player.setCollideWorldBounds(true);
-
-    this.glass = this.add.tileSprite(
-      APP_SIZE.WIDTH * 0.5,
-      APP_SIZE.HEIGHT * 0.5 - 200,
-      APP_SIZE.WIDTH,
-      APP_SIZE.HEIGHT - 200,
-      'glass',
-    );
 
     this.electricityOffLayout = this.add.sprite(
       APP_SIZE.WIDTH * 0.5,
@@ -672,13 +673,15 @@ export class Lab extends Scene {
       this.sequenceReactTimeoutBar.setValue(value);
     }
 
+    this.player.setVelocityX(0);
+
     if (this.leftKey.isDown && this.playerStatus === PLAYER_STATUS.WALKING) {
-      this.player.x -= PLAYER_SPEED;
+      this.player.setVelocityX(-PLAYER_SPEED);
       this.player.flipX = true;
     }
 
     if (this.rightKey.isDown && this.playerStatus === PLAYER_STATUS.WALKING) {
-      this.player.x += PLAYER_SPEED;
+      this.player.setVelocityX(PLAYER_SPEED);
       this.player.flipX = false;
     }
 

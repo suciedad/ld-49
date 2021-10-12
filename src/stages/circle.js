@@ -19,8 +19,8 @@ const degRange = {
 };
 
 const speedRange = {
-  min: 0.025,
-  max: 0.05,
+  min: 0.035,
+  max: 0.065,
 };
 
 const circlePassedDegRange = {
@@ -58,6 +58,7 @@ export class Circle extends Scene {
     this.circles = [];
     this.currentCircleIndex = 0;
     this.status = 'rotating';
+    this.frameTime = 0;
   }
 
   get currentCircle() {
@@ -164,17 +165,23 @@ export class Circle extends Scene {
     );
   }
 
-  update() {
+  update(time, delta) {
+    this.frameTime += delta;
+
     const value = this.timer.getOverallRemainingSeconds();
 
     this.progressBar.setValue(value);
 
-    if (this.status === 'rotating') {
-      this.circles.forEach(({ state, subject, speed, direction }) => {
-        if (state === CIRCLE_STATE.ROTATING) {
-          subject.rotation += speed * direction;
-        }
-      });
+    if (this.frameTime > 16.5) {
+      this.frameTime = 0;
+
+      if (this.status === 'rotating') {
+        this.circles.forEach(({ state, subject, speed, direction }) => {
+          if (state === CIRCLE_STATE.ROTATING) {
+            subject.rotation += speed * direction;
+          }
+        });
+      }
     }
   }
 }
